@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud-native event-driven platform on AWS</title>
+<style>
+  :root{
+    --bg:#04060c; --ink:#e9eefb; --muted:#8a99ba; --faint:#566182; --line:#1f2940;
+    --cyan:#38e1ff; --teal:#2dd4bf; --blue:#60a5fa; --amber:#fbbf24;
+    --purple:#a78bfa; --slate:#94a3b8; --pink:#f472b6; --green:#34d399; --red:#fb7185;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;overflow-x:hidden;
+    background:
+      radial-gradient(1200px 620px at 72% -8%,rgba(56,225,255,.10),transparent 60%),
+      radial-gradient(1000px 700px at 12% 30%,rgba(167,139,250,.09),transparent 60%),
+      radial-gradient(1100px 700px at 90% 80%,rgba(251,191,36,.07),transparent 60%),
+      linear-gradient(180deg,#04060c,#060912 55%,#04060c)}
+  .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+    background-image:linear-gradient(rgba(120,140,200,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,140,200,.05) 1px,transparent 1px);
+    background-size:48px 48px;mask-image:radial-gradient(circle at 55% 35%,#000 35%,transparent 85%)}
+  .wrap{position:relative;z-index:2;max-width:1520px;margin:0 auto;padding:34px 24px 80px}
+
+  .top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);font-weight:600}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  h1{font-size:31px;font-weight:700;letter-spacing:-.02em;margin:10px 0 6px;
+    background:linear-gradient(92deg,#fff,#bfeee0 42%,#cbbcff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--muted);font-size:14.5px;max-width:680px;line-height:1.6}
+  .live{display:flex;gap:14px}
+  .liveCard{padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:rgba(12,18,32,.7);backdrop-filter:blur(8px);min-width:128px}
+  .liveCard .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .liveCard .v{font-size:22px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+  .liveCard .v small{font-size:12px;color:var(--muted);font-weight:500}
+  .liveCard.ok .v{color:var(--green)}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+  .chip{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--muted);background:rgba(255,255,255,.025);
+    border:1px solid var(--line);border-radius:999px;padding:8px 15px;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+  .chip .sw{width:9px;height:9px;border-radius:50%;background:currentColor}
+  .chip:hover{color:var(--ink);border-color:#33405f}
+  .chip.on{color:#04140e;background:var(--ink);border-color:var(--ink)}
+  .chip[data-plane=sync].on{background:var(--cyan);border-color:var(--cyan)}
+  .chip[data-plane=async].on{background:var(--amber);border-color:var(--amber)}
+  .chip[data-plane=data].on{background:var(--blue);border-color:var(--blue)}
+  .chip[data-plane=security].on{background:var(--purple);border-color:var(--purple);color:#150f2c}
+  .chip[data-plane=observ].on{background:var(--slate);border-color:var(--slate)}
+  .chip[data-plane=cicd].on{background:var(--pink);border-color:var(--pink)}
+  .toolbar .sep{width:1px;height:24px;background:var(--line);margin:0 4px}
+  button.act{font:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;border-radius:11px;padding:10px 17px;color:#04140e;
+    background:linear-gradient(180deg,#5ef0bf,#22c98e);box-shadow:0 8px 22px -10px rgba(52,211,153,.6);transition:transform .12s}
+  button.act:hover{transform:translateY(-1px)} button.act:active{transform:translateY(0) scale(.99)}
+  button.act.alt{background:linear-gradient(180deg,#fcd34d,#f59e0b);box-shadow:0 8px 22px -10px rgba(251,191,36,.6)}
+  button.act:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+  .board{position:relative;border:1px solid var(--line);border-radius:22px;overflow:hidden;
+    background:radial-gradient(1200px 560px at 55% 0%,rgba(18,26,46,.5),rgba(6,10,18,.6));box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 40px 90px -50px #000}
+  .viewport{position:relative;width:100%}
+  .stage{position:absolute;top:0;left:0;width:1480px;height:1300px;transform-origin:top left}
+  svg.edges{position:absolute;inset:0;width:1480px;height:1300px;overflow:visible}
+  .frames,.nodes{position:absolute;inset:0}
+
+  .frame{position:absolute;border-radius:18px;border:1.4px solid;background:rgba(255,255,255,.012);transition:opacity .3s,filter .3s}
+  .frame .ftag{position:absolute;top:-12px;left:18px;display:flex;align-items:center;gap:8px;padding:4px 12px;border-radius:9px;font-size:11.5px;font-weight:600;background:#070c16;border:1px solid var(--line);white-space:nowrap}
+  .frame .ftag .aws{font-family:ui-monospace,Menlo,monospace;font-size:9px;background:#ff9900;color:#111;padding:1px 5px;border-radius:4px;font-weight:700}
+  .frame.sub{border-style:dashed;border-color:rgba(120,140,200,.22);background:transparent}
+  .frame.sub .ftag{font-size:10.5px;color:var(--faint);background:transparent;border:none;top:6px;left:14px;padding:0}
+  .frame.dimf{opacity:.32;filter:saturate(.5)}
+
+  .node{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;
+    border-radius:13px;border:1.5px solid var(--ac,rgba(255,255,255,.12));
+    background:linear-gradient(180deg,rgba(18,25,44,.94),rgba(9,14,26,.94));backdrop-filter:blur(5px);padding:8px 6px;
+    transition:transform .25s,box-shadow .35s,opacity .3s,filter .3s;cursor:default}
+  .node:hover{transform:translateY(-3px) scale(1.03);z-index:40;box-shadow:0 14px 36px -14px var(--ac)}
+  .node .ic{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--ac);background:color-mix(in srgb,var(--ac) 15%,transparent)}
+  .node .ic svg{width:17px;height:17px}
+  .node .nm{font-size:12px;font-weight:600;line-height:1.12}
+  .node .ns{font-size:10px;color:var(--muted);line-height:1.05}
+  .node.dim{opacity:.16;filter:saturate(.3)}
+  .node.lit{box-shadow:0 0 32px -2px var(--ac)!important;border-width:2px;transform:scale(1.05);z-index:35}
+
+  .epath{fill:none;stroke-width:2.2;stroke-linecap:round;transition:opacity .35s,stroke-width .25s}
+  .epath.dashed{stroke-dasharray:7 7} .epath.dotted{stroke-dasharray:1.5 8}
+  .epath.flow{stroke-dasharray:9 9;animation:march 1s linear infinite}
+  .epath.thin{stroke-width:1.7;opacity:.5} .epath.dim{opacity:.05} .epath.hot{stroke-width:3.4;opacity:1}
+  @keyframes march{to{stroke-dashoffset:-18}}
+  .elabel{fill:var(--muted);font-size:10.5px;font-weight:600;paint-order:stroke;stroke:#060912;stroke-width:4px}
+  .packet{filter:drop-shadow(0 0 5px currentColor)}
+
+  #tip{position:fixed;z-index:99;pointer-events:none;max-width:258px;padding:11px 13px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(9,14,26,.97);backdrop-filter:blur(10px);box-shadow:0 20px 50px -20px #000;opacity:0;transform:translateY(6px);transition:.15s}
+  #tip.on{opacity:1;transform:translateY(0)}
+  #tip .tt{font-size:13px;font-weight:700;margin-bottom:4px}
+  #tip .td{font-size:11.5px;color:var(--muted);line-height:1.5}
+  #tip .tk{display:inline-block;font-size:9.5px;font-family:ui-monospace,monospace;color:var(--cyan);background:rgba(56,225,255,.1);padding:1px 6px;border-radius:5px;margin-top:7px}
+
+  .below{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-top:18px}
+  .panel{border:1px solid var(--line);border-radius:16px;background:rgba(9,14,26,.6);padding:16px 18px}
+  .panel h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:12px;font-weight:600}
+  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.7;max-height:188px;overflow-y:auto}
+  #log .ln{display:flex;gap:10px;opacity:0;transform:translateX(-6px);animation:slin .3s forwards}
+  #log .ln .ts{color:var(--faint);flex-shrink:0}
+  #log .ln.ok .ms{color:var(--green)} #log .ln.warn .ms{color:var(--amber)} #log .ln.info .ms{color:var(--ink)} #log .ln.ev .ms{color:var(--cyan)}
+  @keyframes slin{to{opacity:1;transform:translateX(0)}}
+  .legend{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+  .lg{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted)}
+  .lg .sw{width:24px;height:0;border-top:3px solid;border-radius:2px;flex-shrink:0}
+  .lg .swd{border-top-style:dashed} .lg .swt{border-top-style:dotted;border-top-width:3px}
+  .credit{text-align:center;color:var(--faint);font-size:12px;margin-top:30px}
+  @media(max-width:760px){.below{grid-template-columns:1fr}h1{font-size:23px}.live{display:none}}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>AWS · cloud-native reference architecture</span>
+      <h1>Event-driven SaaS platform</h1>
+      <p class="sub">A production topology: edge security, a multi-AZ VPC of Fargate microservices, an asynchronous event backbone, and cross-cutting security, observability &amp; CI/CD planes. Filter a plane or run a live request trace.</p>
+    </div>
+    <div class="live">
+      <div class="liveCard"><div class="k">Throughput</div><div class="v" id="mRps">0<small> req/s</small></div></div>
+      <div class="liveCard"><div class="k">p99 latency</div><div class="v" id="mLat">0<small> ms</small></div></div>
+      <div class="liveCard ok"><div class="k">Healthy AZs</div><div class="v">3<small> / 3</small></div></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="chip on" data-plane="all">All planes</button>
+    <button class="chip" data-plane="sync"><span class="sw" style="color:var(--cyan)"></span>Request</button>
+    <button class="chip" data-plane="async"><span class="sw" style="color:var(--amber)"></span>Events</button>
+    <button class="chip" data-plane="data"><span class="sw" style="color:var(--blue)"></span>Data</button>
+    <button class="chip" data-plane="security"><span class="sw" style="color:var(--purple)"></span>Security</button>
+    <button class="chip" data-plane="observ"><span class="sw" style="color:var(--slate)"></span>Observability</button>
+    <button class="chip" data-plane="cicd"><span class="sw" style="color:var(--pink)"></span>CI/CD</button>
+    <span class="sep"></span>
+    <button class="act" id="btnTrace">Run request trace</button>
+    <button class="act alt" id="btnEvent">Fire async event</button>
+  </div>
+
+  <div class="board">
+    <div class="viewport" id="viewport">
+      <div class="stage" id="stage">
+        <svg class="edges" id="edges" viewBox="0 0 1480 1300"></svg>
+        <div class="frames" id="frames"></div>
+        <div class="nodes" id="nodes"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="below">
+    <div class="panel">
+      <h3>Trace &amp; event log</h3>
+      <div id="log"><div class="ln info"><span class="ts">--:--:--</span><span class="ms">Idle — run a request trace or fire an async event to see the flow.</span></div></div>
+    </div>
+    <div class="panel">
+      <h3>Legend</h3>
+      <div class="legend">
+        <div class="lg"><span class="sw" style="border-color:var(--cyan)"></span>Synchronous request</div>
+        <div class="lg"><span class="sw swd" style="border-color:var(--amber)"></span>Async event</div>
+        <div class="lg"><span class="sw" style="border-color:var(--blue)"></span>Data access</div>
+        <div class="lg"><span class="sw swd" style="border-color:var(--purple)"></span>Security control</div>
+        <div class="lg"><span class="sw swt" style="border-color:var(--slate)"></span>Telemetry</div>
+        <div class="lg"><span class="sw swd" style="border-color:var(--pink)"></span>Deployment</div>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Interactive AWS architecture · hover any component for detail</p>
+</div>
+<div id="tip"><div class="tt"></div><div class="td"></div><span class="tk"></span></div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-dns" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-cdn" viewBox="0 0 24 24"><path d="M6 16a4 4 0 010-8 5 5 0 019.6-1.5A4.5 4.5 0 0117 16H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lb" viewBox="0 0 24 24"><path d="M12 3v6m0 0L7 14m5-5l5 5M5 14v4m7-4v4m7-4v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gw" viewBox="0 0 24 24"><path d="M7 4H5v16h2M17 4h2v16h-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-srv" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="13" width="18" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="7.5" r="1" fill="currentColor"/><circle cx="7" cy="16.5" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="8" ry="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 10h16M4 14.5h16M12 5v14" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-cache" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-bus" viewBox="0 0 24 24"><path d="M3 12h18M8 12V6M8 12v6M16 12V6M16 12v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="4.5" r="1.5" fill="currentColor"/><circle cx="16" cy="19.5" r="1.5" fill="currentColor"/></symbol>
+  <symbol id="i-queue" viewBox="0 0 24 24"><rect x="3" y="9" width="4.5" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9.7" y="9" width="4.5" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="16.5" y="9" width="4.5" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0112 0v5l1.5 2.5H4.5L6 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 20a2 2 0 004 0" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-stream" viewBox="0 0 24 24"><path d="M3 9c3 0 3 3 6 3s3-3 6-3 3 3 6 3M3 15c3 0 3 3 6 3s3-3 6-3 3 3 6 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-bucket" viewBox="0 0 24 24"><path d="M4 6l1.4 12.2A2 2 0 007.4 20h9.2a2 2 0 002-1.8L20 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 6h18M9 6V4h6v2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-glue" viewBox="0 0 24 24"><path d="M20 11A8 8 0 006 5.3M4 13a8 8 0 0014 5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v4h-4M4 20v-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 11l8 8m-3 0l2-2m-4-2l2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-shieldcheck" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4-3 7.5-7 9-4-1.5-7-5-7-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="11" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 9h4M14 13h4M5.5 15.5c.6-1.5 4.4-1.5 5 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-userlock" viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-3.3 2.7-5 6-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="14" y="14" width="7" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 14v-1.5a2 2 0 014 0V14" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-watch" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 011-1h3M20 8V5a1 1 0 00-1-1h-3M4 16v3a1 1 0 001 1h3M20 16v3a1 1 0 01-1 1h-3M3 12h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="4" cy="6" r="1.3" fill="currentColor"/><circle cx="4" cy="12" r="1.3" fill="currentColor"/><circle cx="4" cy="18" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 20v-6M11 20V7M16 20v-9M20 20v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-git" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="9" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 8.5v7M8 7l8 1M15.5 9.5c0 4-9 1.5-9 6" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-pipe" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="19" cy="12" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.2 12h2.6M14.2 12h2.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.2v9.6L12 21l-8-4.2V7.2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 7.2l8 4.2 8-4.2M12 11.4V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-container" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 8V19M12 8v11M16 8v11M4 11.5h16" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 3c3.2 2.8 4.2 7 3 11l-3 3-3-3c-1.2-4-.2-8.2 3-11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 16l-3 1 1 4 3-2M15 16l3 1-1 4-3-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="1.6" fill="currentColor"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-4-4M20 16H6l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<script>
+const C={cyan:'#38e1ff',teal:'#2dd4bf',blue:'#60a5fa',amber:'#fbbf24',purple:'#a78bfa',slate:'#94a3b8',pink:'#f472b6',green:'#34d399'};
+
+const NODES={
+  client:{x:40,y:60,w:120,h:84,c:'cyan',ic:'i-user',nm:'Clients',ns:'web · mobile · API',p:['sync'],tip:['End clients','Browser SPA, mobile apps and partner APIs. All ingress is TLS-terminated at the edge.','Global']},
+  route53:{x:222,y:62,w:120,h:80,c:'cyan',ic:'i-dns',nm:'Route 53',ns:'DNS · health checks',p:['sync'],tip:['Amazon Route 53','Geo + latency routing with health-check failover. Alias records point at CloudFront.','TTL 60s']},
+  cf:{x:402,y:55,w:152,h:92,c:'cyan',ic:'i-cdn',nm:'CloudFront',ns:'CDN · TLS',p:['sync'],tip:['CloudFront','Global edge cache and TLS termination via ACM. Static assets served from edge, dynamic forwarded to origin.','200+ PoPs']},
+  waf:{x:612,y:62,w:132,h:80,c:'cyan',ic:'i-shield',nm:'WAF + Shield',ns:'L7 firewall',p:['sync','security'],tip:['AWS WAF + Shield','Managed rule groups, rate limiting and DDoS protection in front of every origin.','Edge']},
+
+  alb:{x:100,y:280,w:130,h:64,c:'blue',ic:'i-lb',nm:'ALB',ns:'internal',p:['sync'],tip:['Application Load Balancer','Routes to the ECS service mesh across availability zones with health checks.','Multi-AZ']},
+  apigw:{x:300,y:280,w:152,h:64,c:'blue',ic:'i-gw',nm:'API Gateway',ns:'REST · WebSocket',p:['sync'],tip:['Amazon API Gateway','Throttling, request validation and a Cognito authorizer guard every route.','Regional']},
+  natgw:{x:838,y:280,w:142,h:64,c:'slate',ic:'i-swap',nm:'NAT Gateway',ns:'egress',p:['sync'],tip:['NAT Gateway','Outbound-only internet egress for private subnets, one per AZ for resilience.','Per-AZ']},
+
+  svcAuth:{x:100,y:452,w:130,h:96,c:'green',ic:'i-srv',nm:'Auth service',ns:'Fargate',p:['sync','security'],tip:['Auth microservice','Validates JWTs against Cognito and issues short-lived session tokens. Stateless tasks.','ECS Fargate']},
+  svcOrders:{x:270,y:452,w:140,h:96,c:'green',ic:'i-srv',nm:'Orders service',ns:'Fargate',p:['sync','async','data'],tip:['Orders microservice','Core domain logic. Writes to Aurora and emits domain events to EventBridge.','ECS Fargate']},
+  svcPay:{x:460,y:452,w:130,h:96,c:'green',ic:'i-srv',nm:'Payments',ns:'Fargate',p:['sync','async','data'],tip:['Payments microservice','PCI-scoped service. Idempotent writes to DynamoDB, queues settlement jobs to SQS.','ECS Fargate']},
+  svcNotif:{x:620,y:452,w:140,h:96,c:'green',ic:'i-srv',nm:'Notifications',ns:'Fargate',p:['async','data'],tip:['Notifications microservice','Consumes SNS topics, fans out email / push, indexes deliveries in OpenSearch.','ECS Fargate']},
+  lambda:{x:800,y:452,w:150,h:96,c:'amber',ic:'i-bolt',nm:'Lambda',ns:'stream workers',p:['async','data'],tip:['Lambda functions','Event-triggered compute for stream processing and on-demand transforms.','Serverless']},
+
+  aurora:{x:270,y:680,w:150,h:100,c:'blue',ic:'i-db',nm:'Aurora',ns:'PostgreSQL · Multi-AZ',p:['data'],tip:['Aurora (Multi-AZ)','Transactional system of record with a writer and read replicas across AZs.','Relational']},
+  dynamo:{x:460,y:680,w:140,h:100,c:'blue',ic:'i-table',nm:'DynamoDB',ns:'global tables',p:['data'],tip:['DynamoDB','Single-digit-ms key-value store for payments and idempotency keys. Global tables.','NoSQL']},
+  redis:{x:650,y:680,w:150,h:100,c:'blue',ic:'i-cache',nm:'ElastiCache',ns:'Redis',p:['data'],tip:['ElastiCache for Redis','Session store and hot-path cache to shed read load from Aurora.','In-memory']},
+  opensrch:{x:840,y:680,w:160,h:100,c:'blue',ic:'i-search',nm:'OpenSearch',ns:'logs · search',p:['data'],tip:['Amazon OpenSearch','Full-text search and centralized log analytics for notifications and audit.','Search']},
+
+  eventbridge:{x:70,y:1020,w:170,h:64,c:'amber',ic:'i-bus',nm:'EventBridge',ns:'event bus',p:['async'],tip:['EventBridge','The async backbone. Rules route domain events to queues, topics and Lambda.','Serverless bus']},
+  sqs:{x:290,y:1020,w:110,h:64,c:'amber',ic:'i-queue',nm:'SQS',ns:'durable queue',p:['async'],tip:['Amazon SQS','Buffers work for reliable, decoupled processing with a dead-letter queue.','At-least-once']},
+  sns:{x:440,y:1020,w:110,h:64,c:'amber',ic:'i-bell',nm:'SNS',ns:'pub/sub',p:['async'],tip:['Amazon SNS','Fan-out pub/sub to notification subscribers and downstream services.','Topics']},
+  kinesis:{x:590,y:1020,w:140,h:64,c:'amber',ic:'i-stream',nm:'Kinesis',ns:'streaming',p:['async'],tip:['Kinesis Data Streams','Ordered, replayable event stream feeding analytics and the data lake.','Sharded']},
+  s3:{x:772,y:1020,w:130,h:64,c:'amber',ic:'i-bucket',nm:'S3 lake',ns:'data lake',p:['async','data'],tip:['S3 data lake','Immutable raw + curated zones with lifecycle tiering to Glacier.','Object store']},
+  glue:{x:942,y:1020,w:96,h:64,c:'amber',ic:'i-glue',nm:'Glue',ns:'ETL',p:['async'],tip:['Glue + Athena','Serverless ETL catalogs the lake; Athena runs ad-hoc SQL over it.','Catalog']},
+
+  cognito:{x:1120,y:250,w:140,h:80,c:'purple',ic:'i-userlock',nm:'Cognito',ns:'user pools',p:['security','sync'],tip:['Amazon Cognito','Identity provider issuing OIDC tokens; backs the API Gateway authorizer.','Identity']},
+  kms:{x:1290,y:250,w:140,h:80,c:'purple',ic:'i-key',nm:'KMS',ns:'encryption',p:['security'],tip:['AWS KMS','Customer-managed keys encrypt every data store, queue and bucket at rest.','Envelope keys']},
+  secrets:{x:1120,y:360,w:140,h:80,c:'purple',ic:'i-lock',nm:'Secrets Mgr',ns:'rotation',p:['security'],tip:['Secrets Manager','Auto-rotated DB credentials and API keys injected into tasks at runtime.','Rotated']},
+  guard:{x:1290,y:360,w:140,h:80,c:'purple',ic:'i-shieldcheck',nm:'GuardDuty',ns:'threat detect',p:['security'],tip:['GuardDuty','Continuous threat detection on VPC flow logs, DNS and API activity.','ML-based']},
+  iam:{x:1205,y:460,w:140,h:70,c:'purple',ic:'i-id',nm:'IAM',ns:'least privilege',p:['security'],tip:['IAM','Scoped task roles and policies enforce least-privilege access everywhere.','Roles']},
+
+  cw:{x:1120,y:640,w:140,h:80,c:'slate',ic:'i-watch',nm:'CloudWatch',ns:'metrics · alarms',p:['observ'],tip:['CloudWatch','Metrics, logs and alarms drive autoscaling and on-call paging.','Telemetry']},
+  xray:{x:1290,y:640,w:140,h:80,c:'slate',ic:'i-scan',nm:'X-Ray',ns:'tracing',p:['observ'],tip:['AWS X-Ray','Distributed tracing stitches a request across every microservice hop.','Traces']},
+  trail:{x:1120,y:750,w:140,h:80,c:'slate',ic:'i-list',nm:'CloudTrail',ns:'audit',p:['observ'],tip:['CloudTrail','Immutable audit log of every API call for compliance and forensics.','Audit']},
+  grafana:{x:1290,y:750,w:140,h:80,c:'slate',ic:'i-chart',nm:'Grafana',ns:'dashboards',p:['observ'],tip:['Managed Grafana','Unified dashboards and SLO burn-rate alerting across all signals.','Dashboards']},
+
+  github:{x:70,y:1180,w:130,h:64,c:'pink',ic:'i-git',nm:'GitHub',ns:'source',p:['cicd'],tip:['GitHub','Source of truth; pull requests trigger the pipeline via webhooks.','VCS']},
+  pipeline:{x:260,y:1180,w:150,h:64,c:'pink',ic:'i-pipe',nm:'CodePipeline',ns:'orchestration',p:['cicd'],tip:['CodePipeline','Orchestrates build, test and staged blue/green deploys with approvals.','CD']},
+  build:{x:460,y:1180,w:130,h:64,c:'pink',ic:'i-box',nm:'CodeBuild',ns:'test · package',p:['cicd'],tip:['CodeBuild','Runs the test suite and builds immutable container images.','CI']},
+  ecr:{x:640,y:1180,w:120,h:64,c:'pink',ic:'i-container',nm:'ECR',ns:'image registry',p:['cicd'],tip:['Amazon ECR','Scanned, signed container images promoted across environments.','Registry']},
+  deploy:{x:810,y:1180,w:160,h:64,c:'pink',ic:'i-rocket',nm:'Blue/green',ns:'ECS rollout',p:['cicd'],tip:['CodeDeploy','Blue/green rollout to Fargate with automatic rollback on alarm.','Zero-downtime']},
+};
+
+const FRAMES=[
+  {cls:'',x:1090,y:190,w:360,h:360,c:'purple',tag:'Security &amp; identity plane'},
+  {cls:'',x:1090,y:580,w:360,h:380,c:'slate',tag:'Observability plane'},
+  {cls:'',x:40,y:190,w:1010,h:770,c:'teal',tag:'Production VPC · 10.0.0.0/16 · 3 AZ'},
+  {cls:'sub',x:64,y:248,w:962,h:112,c:'',tag:'Public subnets · ingress'},
+  {cls:'sub',x:64,y:404,w:962,h:158,c:'',tag:'Private app subnets · ECS Fargate'},
+  {cls:'sub',x:64,y:632,w:962,h:170,c:'',tag:'Private data subnets'},
+  {cls:'',x:40,y:990,w:1010,h:130,c:'amber',tag:'Event-driven backbone'},
+  {cls:'',x:40,y:1150,w:1010,h:118,c:'pink',tag:'CI/CD pipeline'},
+];
+
+const EDGES=[
+  ['s1','client','right','route53','left','sync','solid',1,'',1],
+  ['s2','route53','right','cf','left','sync','solid',1,'',1],
+  ['s3','cf','right','waf','left','sync','solid',1,'',1],
+  ['s4','waf','bottom','alb','top','sync','solid',1,'',1],
+  ['s5','alb','right','apigw','left','sync','solid',1,'',1],
+  ['s6','apigw','bottom','svcOrders','top','sync','solid',1,'route',1],
+  ['s7','alb','bottom','svcAuth','top','sync','solid',1,'',1],
+  ['s8','svcOrders','right','svcPay','left','sync','solid',1,'',0],
+  ['d1','svcOrders','bottom','aurora','top','data','solid',1,'',1],
+  ['d2','svcPay','bottom','dynamo','top','data','solid',1,'',1],
+  ['d3','svcNotif','bottom','redis','top','data','solid',1,'',0],
+  ['d4','lambda','bottom','opensrch','top','data','solid',1,'',0],
+  ['a1','svcOrders','bottom','eventbridge','top','async','dashed',1,'emit',1],
+  ['a2','eventbridge','right','sqs','left','async','dashed',1,'',1],
+  ['a3','eventbridge','bottom','sns','bottom','async','dashed',1,'',0],
+  ['a4','sqs','right','kinesis','left','async','dashed',1,'',1],
+  ['a5','kinesis','right','s3','left','async','dashed',1,'',1],
+  ['a6','s3','right','glue','left','async','dashed',1,'',1],
+  ['a7','sns','top','svcNotif','bottom','async','dashed',1,'',0],
+  ['sec1','cognito','left','apigw','right','security','dashed',1,'authz',0],
+  ['sec2','secrets','left','svcPay','right','security','dashed',1,'',0],
+  ['sec3','kms','left','dynamo','right','security','dashed',1,'',0],
+  ['sec4','guard','left','natgw','right','security','dashed',1,'',0],
+  ['sec5','iam','top','cognito','bottom','security','dashed',1,'',0],
+  ['sec6','iam','top','secrets','bottom','security','dashed',1,'',0],
+  ['o1','cw','left','svcOrders','right','observ','dotted',1,'metrics',0],
+  ['o2','xray','left','apigw','right','observ','dotted',1,'',0],
+  ['o3','cw','right','xray','left','observ','dotted',1,'',0],
+  ['o4','trail','right','grafana','left','observ','dotted',1,'',0],
+  ['c1','github','right','pipeline','left','cicd','dashed',1,'',1],
+  ['c2','pipeline','right','build','left','cicd','dashed',1,'',1],
+  ['c3','build','right','ecr','left','cicd','dashed',1,'',1],
+  ['c4','ecr','right','deploy','left','cicd','dashed',1,'',1],
+  ['c5','deploy','top','svcPay','bottom','cicd','dashed',1,'rollout',0],
+].map(e=>({id:e[0],a:e[1],as:e[2],b:e[3],bs:e[4],plane:e[5],s:e[6],on:e[7],label:e[8],flow:e[9]}));
+
+const nodesEl=document.getElementById('nodes'),framesEl=document.getElementById('frames'),svg=document.getElementById('edges'),tip=document.getElementById('tip');
+
+FRAMES.forEach(f=>{const d=document.createElement('div');d.className='frame '+f.cls;
+  if(f.c)d.style.borderColor='color-mix(in srgb,'+C[f.c]+' 42%,transparent)',d.style.background='color-mix(in srgb,'+C[f.c]+' 5%,transparent)';
+  d.style.cssText+=`;left:${f.x}px;top:${f.y}px;width:${f.w}px;height:${f.h}px`;
+  const aws=f.cls==='sub'?'':'<span class="aws">aws</span>';
+  d.innerHTML=`<span class="ftag" style="${f.c?'color:'+C[f.c]:''}">${aws}${f.tag}</span>`;framesEl.appendChild(d);d._plane=f.c;});
+
+for(const k in NODES){const n=NODES[k];const d=document.createElement('div');d.className='node';d.id='n-'+k;d.style.setProperty('--ac',C[n.c]);
+  d.style.cssText+=`;left:${n.x}px;top:${n.y}px;width:${n.w}px;height:${n.h}px`;
+  d.innerHTML=`<div class="ic"><svg><use href="#${n.ic}"/></svg></div><div class="nm">${n.nm}</div><div class="ns">${n.ns}</div>`;
+  d.addEventListener('mousemove',e=>{tip.querySelector('.tt').textContent=n.tip[0];tip.querySelector('.td').textContent=n.tip[1];tip.querySelector('.tk').textContent=n.tip[2];
+    tip.classList.add('on');let x=e.clientX+16;if(x>innerWidth-275)x=e.clientX-272;tip.style.left=x+'px';tip.style.top=(e.clientY+16)+'px';});
+  d.addEventListener('mouseleave',()=>tip.classList.remove('on'));nodesEl.appendChild(d);}
+
+function anchor(n,s){const cx=n.x+n.w/2,cy=n.y+n.h/2;
+  if(s==='left')return[n.x,cy,-1,0];if(s==='right')return[n.x+n.w,cy,1,0];if(s==='top')return[cx,n.y,0,-1];return[cx,n.y+n.h,0,1];}
+function bez(t,p){const u=1-t;return[u*u*u*p[0][0]+3*u*u*t*p[1][0]+3*u*t*t*p[2][0]+t*t*t*p[3][0],u*u*u*p[0][1]+3*u*u*t*p[1][1]+3*u*t*t*p[2][1]+t*t*t*p[3][1]];}
+const NS='http://www.w3.org/2000/svg';
+EDGES.forEach(ed=>{const A=anchor(NODES[ed.a],ed.as),B=anchor(NODES[ed.b],ed.bs);
+  const dist=Math.hypot(B[0]-A[0],B[1]-A[1]),o=Math.max(45,dist*.42);
+  const pts=[[A[0],A[1]],[A[0]+A[2]*o,A[1]+A[3]*o],[B[0]+B[2]*o,B[1]+B[3]*o],[B[0],B[1]]];ed._pts=pts;
+  ed._d=`M ${pts[0]} C ${pts[1]} ${pts[2]} ${pts[3]}`;
+  const p=document.createElementNS(NS,'path');p.setAttribute('d',ed._d);p.id='p-'+ed.id;p.style.stroke=C[ed.plane==='sync'?'cyan':ed.plane==='async'?'amber':ed.plane==='data'?'blue':ed.plane==='security'?'purple':ed.plane==='observ'?'slate':'pink'];p.style.color=p.style.stroke;
+  svg.appendChild(p);ed._p=p;ed._col=p.style.stroke;
+  if(ed.label){const m=bez(.5,pts);const t=document.createElementNS(NS,'text');t.setAttribute('class','elabel');t.setAttribute('x',m[0]);t.setAttribute('y',m[1]-7);t.setAttribute('text-anchor','middle');t.textContent=ed.label;svg.appendChild(t);ed._t=t;}
+});
+
+let FILTER='all';const packets={};
+function edgeClass(ed){let base='epath '+(ed.s==='dashed'?'dashed':ed.s==='dotted'?'dotted':'solid');
+  const vis=FILTER==='all'||FILTER===ed.plane;
+  if(!vis)return base+' dim';
+  if(ed.flow&&ed.on)base+=' flow';
+  if(FILTER!=='all')base+=' hot'; else if(ed.plane==='security'||ed.plane==='observ')base+=' thin';
+  return base;}
+function refresh(){
+  EDGES.forEach(ed=>{ed._p.setAttribute('class',edgeClass(ed));if(ed._t)ed._t.style.opacity=(FILTER==='all'||FILTER===ed.plane)?'1':'0';
+    const want=ed.flow&&ed.on&&(FILTER==='all'||FILTER===ed.plane)&&ed.plane!=='security'&&ed.plane!=='observ';
+    if(want&&!packets[ed.id])addPacket(ed);if(!want&&packets[ed.id])delPacket(ed);});
+  for(const k in NODES){const inP=FILTER==='all'||NODES[k].p.includes(FILTER);document.getElementById('n-'+k).classList.toggle('dim',!inP);}
+  framesEl.querySelectorAll('.frame').forEach((f,i)=>{const pl=FRAMES[i].c;f.classList.toggle('dimf',FILTER!=='all'&&pl&&pl!==planeColorName(FILTER)&&!(FILTER==='sync'&&FRAMES[i].c==='teal')&&!(FILTER==='data'&&FRAMES[i].c==='teal')&&!(FILTER==='async'&&FRAMES[i].c==='teal'));});
+}
+function planeColorName(p){return p==='sync'?'cyan':p==='async'?'amber':p==='data'?'blue':p==='security'?'purple':p==='observ'?'slate':'pink';}
+function addPacket(ed){const dur=ed.plane==='cicd'?1.8:1.4,n=ed.plane==='sync'?2:1,g=[];
+  for(let i=0;i<n;i++){const c=document.createElementNS(NS,'circle');c.setAttribute('r',3.2);c.setAttribute('fill',ed._col);c.setAttribute('class','packet');c.style.color=ed._col;
+    const m=document.createElementNS(NS,'animateMotion');m.setAttribute('dur',dur+'s');m.setAttribute('repeatCount','indefinite');m.setAttribute('path',ed._d);m.setAttribute('begin',(i*dur/n)+'s');c.appendChild(m);svg.appendChild(c);g.push(c);}
+  packets[ed.id]=g;}
+function delPacket(ed){(packets[ed.id]||[]).forEach(c=>c.remove());delete packets[ed.id];}
+
+document.querySelectorAll('.chip').forEach(ch=>ch.onclick=()=>{document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));ch.classList.add('on');FILTER=ch.dataset.plane;refresh();});
+
+const stage=document.getElementById('stage'),viewport=document.getElementById('viewport');
+function fit(){const w=viewport.clientWidth,sc=Math.min(1,w/1480);stage.style.transform=`scale(${sc})`;viewport.style.height=(1300*sc)+'px';}
+new ResizeObserver(fit).observe(viewport);fit();
+
+const logEl=document.getElementById('log');
+function now(){return new Date().toTimeString().slice(0,8);}
+function log(msg,cls='info'){const l=document.createElement('div');l.className='ln '+cls;l.innerHTML=`<span class="ts">${now()}</span><span class="ms">${msg}</span>`;logEl.appendChild(l);logEl.scrollTop=logEl.scrollHeight;}
+
+let rps=0,lat=0;function ticker(){rps+=Math.round((Math.random()*2-1)*240);rps=Math.max(8200,Math.min(15400,rps||12000));lat=38+Math.round(Math.random()*14);
+  document.getElementById('mRps').innerHTML=rps.toLocaleString()+'<small> req/s</small>';document.getElementById('mLat').innerHTML=lat+'<small> ms</small>';}
+ticker();setInterval(ticker,1600);
+
+const N=k=>document.getElementById('n-'+k);
+function animateAlong(ed,dur,rev){return new Promise(res=>{const c=document.createElementNS(NS,'circle');c.setAttribute('r',6);c.setAttribute('fill','#fff');c.setAttribute('class','packet');c.style.color=ed._col;svg.appendChild(c);
+  const t0=performance.now();function step(t){let k=Math.min(1,(t-t0)/dur);const p=bez(rev?1-k:k,ed._pts);c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('fill',ed._col);
+    if(k<1)requestAnimationFrame(step);else{c.remove();res();}}requestAnimationFrame(step);});}
+function litNode(k){const el=N(k);el.classList.add('lit');setTimeout(()=>el.classList.remove('lit'),1100);}
+
+let busy=false;
+async function runTrace(){if(busy)return;busy=true;document.getElementById('btnTrace').disabled=document.getElementById('btnEvent').disabled=true;
+  const seq=[['client','s1','route53'],['route53','s2','cf'],['cf','s3','waf'],['waf','s4','alb'],['alb','s5','apigw'],['apigw','s6','svcOrders'],['svcOrders','d1','aurora']];
+  const msgs=['Client request received at the edge','Route 53 resolved to nearest healthy region','CloudFront cache miss — forwarding to origin','WAF rules passed · request allowed','Load balancer selected a healthy task','API Gateway authorized via Cognito','Orders service committed write to Aurora'];
+  log('▶ Synchronous request trace started','ev');litNode('client');
+  for(let i=0;i<seq.length;i++){const ed=EDGES.find(e=>e.id===seq[i][1]);await animateAlong(ed,560);litNode(seq[i][2]);log(msgs[i],'info');}
+  log('✓ 200 OK returned · end-to-end '+(180+Math.round(Math.random()*60))+'ms','ok');
+  busy=false;document.getElementById('btnTrace').disabled=document.getElementById('btnEvent').disabled=false;}
+
+async function runEvent(){if(busy)return;busy=true;document.getElementById('btnTrace').disabled=document.getElementById('btnEvent').disabled=true;
+  log('▶ Async event published: order.created','ev');litNode('svcOrders');
+  await animateAlong(EDGES.find(e=>e.id==='a1'),560);litNode('eventbridge');log('EventBridge matched routing rules','info');
+  await Promise.all([animateAlong(EDGES.find(e=>e.id==='a2'),520).then(()=>litNode('sqs')),animateAlong(EDGES.find(e=>e.id==='a3'),560).then(()=>litNode('sns'))]);
+  log('Fan-out → SQS (settlement) + SNS (notify)','info');
+  await Promise.all([animateAlong(EDGES.find(e=>e.id==='a7'),520).then(()=>litNode('svcNotif')),animateAlong(EDGES.find(e=>e.id==='a4'),520).then(()=>litNode('kinesis'))]);
+  log('Notifications dispatched · stream ingested','info');
+  await animateAlong(EDGES.find(e=>e.id==='a5'),500);litNode('s3');await animateAlong(EDGES.find(e=>e.id==='a6'),500);litNode('glue');
+  log('✓ Landed in S3 lake · cataloged by Glue','ok');
+  busy=false;document.getElementById('btnTrace').disabled=document.getElementById('btnEvent').disabled=false;}
+
+document.getElementById('btnTrace').onclick=runTrace;
+document.getElementById('btnEvent').onclick=runEvent;
+refresh();
+</script>
+</body>
+</html>
