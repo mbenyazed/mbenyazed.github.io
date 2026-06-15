@@ -155,6 +155,15 @@
   .skill-card li { color: var(--muted); font-size: 0.98rem; padding-left: 18px; position: relative; }
   .skill-card li::before { content: "›"; position: absolute; left: 0; color: var(--silver); font-weight: 700; }
 
+  .honors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 22px; }
+  .honor-card { border-radius: 22px; padding: 32px; transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s; }
+  .honor-card:hover { transform: translateY(-6px); border-color: var(--border); }
+  .honor-card .ic { width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-soft); margin-bottom: 18px; color: var(--silver); }
+  .honor-card .ic svg { width: 24px; height: 24px; }
+  .honor-card h4 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+  .honor-card .meta { color: var(--silver); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+  .honor-card p { color: var(--muted); font-size: 0.96rem; }
+
   .contact { text-align: center; }
   .contact-card { border-radius: 30px; padding: clamp(40px, 7vw, 80px) 32px; }
   .contact h2 { margin-bottom: 18px; }
@@ -184,6 +193,7 @@
     <li><a href="#about">About</a></li>
     <li><a href="#project">Project</a></li>
     <li><a href="#skills">Skills</a></li>
+    <li><a href="#honors">Honors</a></li>
     <li class="cta-li"><a class="nav-cta" href="#contact">Contact</a></li>
   </ul>
 </nav>
@@ -212,8 +222,8 @@
     <div class="about reveal">
       <div class="section-label">About</div>
       <h2>Where networking<br>meets the cloud.</h2>
-      <p>I'm an IT professional and undergraduate at Arizona State University's W. P. Carey School of Business, studying Applied Business &amp; Technology Solutions (graduating December 2026). I'm pivoting into cloud infrastructure, systems engineering, and technical product management.</p>
-      <p>My focus is the intersection of networking fundamentals and modern cloud architecture, designing systems that survive failure. I'm actively studying for my CCNA and building production-grade AWS architectures to back it up.</p>
+      <p>My name is Mamoun Benyazed and I'm an ASU W. P. Carey business student graduating in Dec 2026, combining practical IT experience with a deep focus on networking and cloud architecture. I'm currently positioning myself for roles in Systems Engineering and Technical Product Management, where I can design resilient, fault-tolerant systems.</p>
+      <p>To back it up, I'm tackling the CCNA and building production-grade AWS architectures.</p>
     </div>
   </div>
 </section>
@@ -312,6 +322,35 @@
           <li>Technical product thinking</li>
           <li>Operations translation</li>
         </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="honors">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-label">Recognition</div>
+      <h2>Honors &amp; certifications</h2>
+    </div>
+    <div class="honors-grid">
+      <div class="honor-card glass shine reveal">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 21l5-3 5 3-1.5-8.5"/></svg></div>
+        <h4>CompTIA A+</h4>
+        <div class="meta">Industry Certification</div>
+        <p>Industry-recognized credential validating core IT, hardware, and operating-system support skills.</p>
+      </div>
+      <div class="honor-card glass shine reveal">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6L12 18.9 6.6 19.6l1.2-6L3.3 9.4l6.1-.8z"/></svg></div>
+        <h4>Dean's List</h4>
+        <div class="meta">ASU W. P. Carey School of Business</div>
+        <p>Recognized for sustained academic excellence and top-tier GPA performance.</p>
+      </div>
+      <div class="honor-card glass shine reveal">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v4.5c0 1.2 2.6 2.5 5 2.5s5-1.3 5-2.5V11"/><path d="M21 9v5"/></svg></div>
+        <h4>Magna Cum Laude</h4>
+        <div class="meta">Graduating with High Distinction</div>
+        <p>Awarded for graduating among the top of the class with high academic honors.</p>
       </div>
     </div>
   </div>
