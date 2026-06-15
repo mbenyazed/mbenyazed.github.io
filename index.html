@@ -33,7 +33,6 @@
   }
   a { color: var(--silver); text-decoration: none; }
 
-  /* ===== BACKGROUND ===== */
   .glow { position: fixed; inset: 0; z-index: -3; overflow: hidden; }
   .glow span { position: absolute; border-radius: 50%; filter: blur(130px); will-change: transform; }
   .glow .g1 { width: 60vw; height: 60vw; top: -22vw; left: -8vw; opacity: 0.16; background: radial-gradient(circle, #cfe0ff 0%, transparent 70%); animation: drift1 42s ease-in-out infinite alternate; }
@@ -68,7 +67,6 @@
   .metal-text { background: var(--metal); background-size: 250% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 9s linear infinite; }
   @keyframes shimmer { to { background-position: -250% center; } }
 
-  /* ===== NAV ===== */
   nav {
     position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
     z-index: 100; width: calc(100% - 36px); max-width: 940px;
@@ -86,7 +84,6 @@
   nav .nav-cta { background: var(--metal); background-size: 250% auto; color: #0a0a0c; font-weight: 600; animation: shimmer 9s linear infinite; }
   @media (max-width: 680px){ nav ul li:not(.cta-li){ display: none; } }
 
-  /* ===== HERO ===== */
   header.hero { min-height: 100vh; display: flex; align-items: center; padding: 140px 0 90px; position: relative; }
   .hero-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 60px; align-items: center; width: 100%; }
   @media (max-width: 820px){ .hero-grid { grid-template-columns: 1fr; gap: 48px; text-align: center; } .hero-photo { order: -1; } .cta, .badge-row { justify-content: center; } }
@@ -196,7 +193,7 @@
     <div class="hero-text">
       <div class="badge-row reveal"><span class="badge"><span class="pulse"></span> Open to opportunities</span><span class="badge">CCNA Candidate</span></div>
       <h1 class="reveal">Building <span class="metal-text">resilient</span> cloud &amp; network infrastructure.</h1>
-      <p class="lead reveal">Solutions Architecture &amp; Enterprise Infrastructure — translating complex business operations into high-availability systems that stay online when everything else fails.</p>
+      <p class="lead reveal">Solutions Architecture &amp; Enterprise Infrastructure. I translate complex business operations into high-availability systems that stay online when everything else fails.</p>
       <div class="cta reveal">
         <a class="btn btn-glass" href="https://github.com/mbenyazed" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
@@ -216,7 +213,7 @@
       <div class="section-label">About</div>
       <h2>Where networking<br>meets the cloud.</h2>
       <p>I'm an IT professional and undergraduate at Arizona State University's W. P. Carey School of Business, studying Applied Business &amp; Technology Solutions (graduating December 2026). I'm pivoting into cloud infrastructure, systems engineering, and technical product management.</p>
-      <p>My focus is the intersection of networking fundamentals and modern cloud architecture — designing systems that survive failure. I'm actively studying for my CCNA and building production-grade AWS architectures to back it up.</p>
+      <p>My focus is the intersection of networking fundamentals and modern cloud architecture, designing systems that survive failure. I'm actively studying for my CCNA and building production-grade AWS architectures to back it up.</p>
     </div>
   </div>
 </section>
@@ -232,12 +229,12 @@
         <img class="diagram" src="https://raw.githubusercontent.com/mbenyazed/aws-multiregion-failover/main/architecture.png" alt="AWS Multi-Region Active-Passive Failover architecture diagram" />
       </div>
       <div class="body">
-        <span class="project-num metal-text">01 — AWS DISASTER RECOVERY</span>
+        <span class="project-num metal-text">01 · AWS DISASTER RECOVERY</span>
         <h3>Multi-Region Active-Passive Failover with Auto-Recovery</h3>
         <p class="desc">A production-grade, event-driven disaster-recovery blueprint designed to survive catastrophic regional failures while preserving client connectivity.</p>
         <ul class="pillars">
-          <li><strong>Edge Resiliency.</strong> Amazon CloudFront Origin Groups route traffic away from a failing origin instantly — without waiting for slow DNS TTL cutovers.</li>
-          <li><strong>Automated State Recovery.</strong> CloudWatch monitors 5xx errors, alerts via SNS, and triggers a Lambda function that promotes the standby RDS PostgreSQL replica — no manual intervention.</li>
+          <li><strong>Edge Resiliency.</strong> Amazon CloudFront Origin Groups route traffic away from a failing origin instantly, without waiting for slow DNS TTL cutovers.</li>
+          <li><strong>Automated State Recovery.</strong> CloudWatch monitors 5xx errors, alerts via SNS, and triggers a Lambda function that promotes the standby RDS PostgreSQL replica, with no manual intervention.</li>
           <li><strong>Graceful Degradation.</strong> An S3-hosted static maintenance page catches user traffic during the brief promotion window, preventing transaction timeouts.</li>
         </ul>
         <div class="tags">
@@ -257,9 +254,9 @@
         <span style="position:absolute; inset:0; display:flex; align-items:flex-end; padding:20px; font-weight:600; color:#fff; background:linear-gradient(180deg, transparent 55%, rgba(4,6,12,0.9))">▶ Launch interactive demo</span>
       </a>
       <div class="body">
-        <span class="project-num metal-text">02 — INTERACTIVE DEMO</span>
+        <span class="project-num metal-text">02 · INTERACTIVE DEMO</span>
         <h3>Event-Driven SaaS Platform on AWS</h3>
-        <p class="desc">An interactive, explorable production topology — edge security, a multi-AZ VPC of Fargate microservices, an asynchronous event backbone, and cross-cutting security, observability &amp; CI/CD planes. Filter any plane or run a live request trace right in the browser.</p>
+        <p class="desc">An interactive, explorable production topology featuring edge security, a multi-AZ VPC of Fargate microservices, an asynchronous event backbone, and cross-cutting security, observability &amp; CI/CD planes. Filter any plane or run a live request trace right in the browser.</p>
         <ul class="pillars">
           <li><strong>Edge &amp; Network Security.</strong> WAF-fronted edge protecting a multi-AZ VPC that isolates public and private service tiers.</li>
           <li><strong>Event Backbone.</strong> Decoupled Fargate microservices communicating asynchronously through an event-driven messaging layer.</li>
