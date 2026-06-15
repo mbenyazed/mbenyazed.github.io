@@ -54,13 +54,11 @@
   }
   @keyframes gridpan { to { background-position: 62px 62px; } }
 
-  /* sweeping page-wide reflection beam */
   .beam { position: fixed; top: 0; left: -40%; width: 35%; height: 100vh; z-index: -1; pointer-events: none;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
     transform: skewX(-18deg); animation: beam 17s ease-in-out infinite; }
   @keyframes beam { 0% { left: -45%; } 60%, 100% { left: 135%; } }
 
-  /* floating particles */
   .particles { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
   .particles i { position: absolute; bottom: -10px; width: 3px; height: 3px; border-radius: 50%;
     background: rgba(255,255,255,0.55); box-shadow: 0 0 8px rgba(207,224,255,0.7); animation: rise linear infinite; }
@@ -108,7 +106,6 @@
   .btn-glass { background: var(--glass-2); border: 1px solid var(--border); color: var(--text); backdrop-filter: blur(10px); }
   .btn-glass:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
 
-  /* Hero photo / monogram fallback */
   .hero-photo { display: flex; justify-content: center; }
   .avatar { position: relative; width: clamp(220px, 30vw, 320px); aspect-ratio: 1/1; border-radius: 50%;
     background: var(--metal); background-size: 250% auto; animation: shimmer 11s linear infinite, float 10s ease-in-out infinite;
@@ -120,9 +117,8 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes float { 50% { transform: translateY(-12px); } }
   .avatar .initials { font-size: clamp(3rem, 8vw, 5rem); font-weight: 800; color: rgba(10,10,12,0.82); letter-spacing: -0.03em; }
-  .avatar img { position: absolute; inset: 5px; width: calc(100% - 10px); height: calc(100% - 10px); object-fit: cover; object-position: 0% 25%; center top ; border-radius: 50%; }
+  .avatar img { position: absolute; inset: 5px; width: calc(100% - 10px); height: calc(100% - 10px); object-fit: cover; object-position: 0% 25%; border-radius: 50%; }
 
-  /* ===== SECTIONS ===== */
   section { padding: 110px 0; position: relative; }
   .section-label { color: var(--silver); font-weight: 600; font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px; }
   h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 28px; line-height: 1.08; }
@@ -131,13 +127,11 @@
 
   .glass { background: var(--glass); border: 1px solid var(--border-soft); backdrop-filter: blur(20px) saturate(130%); -webkit-backdrop-filter: blur(20px) saturate(130%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
 
-  /* gloss sweep on hover */
   .shine { position: relative; overflow: hidden; }
   .shine::after { content: ""; position: absolute; top: 0; left: -160%; width: 80%; height: 100%; transform: skewX(-20deg);
     background: linear-gradient(110deg, transparent, rgba(255,255,255,0.13), transparent); transition: left .85s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
   .shine:hover::after { left: 160%; }
 
-  /* PROJECT */
   .project-card { border-radius: 26px; transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .4s; }
   .project-card:hover { transform: translateY(-6px); box-shadow: 0 40px 90px -40px rgba(0,0,0,0.9); border-color: var(--border); }
   .project-card .imgwrap { background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent); padding: 26px; border-bottom: 1px solid var(--border-soft); }
@@ -154,7 +148,6 @@
   .tag { background: rgba(255,255,255,0.05); border: 1px solid var(--border-soft); color: var(--muted); padding: 6px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 500; transition: transform .25s, border-color .25s, color .25s; }
   .tag:hover { transform: translateY(-2px); border-color: var(--border); color: var(--text); }
 
-  /* SKILLS */
   .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 22px; }
   .skill-card { border-radius: 22px; padding: 32px; transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s; }
   .skill-card:hover { transform: translateY(-6px); border-color: var(--border); }
@@ -165,7 +158,6 @@
   .skill-card li { color: var(--muted); font-size: 0.98rem; padding-left: 18px; position: relative; }
   .skill-card li::before { content: "›"; position: absolute; left: 0; color: var(--silver); font-weight: 700; }
 
-  /* CONTACT */
   .contact { text-align: center; }
   .contact-card { border-radius: 30px; padding: clamp(40px, 7vw, 80px) 32px; }
   .contact h2 { margin-bottom: 18px; }
@@ -174,7 +166,6 @@
 
   footer { padding: 50px 0 60px; text-align: center; color: var(--muted); font-size: 0.86rem; }
 
-  /* ===== SCROLL REVEAL (cinematic) ===== */
   .reveal { opacity: 0; transform: translateY(42px) scale(0.985); filter: blur(8px); transition: opacity 1s cubic-bezier(.2,.8,.2,1), transform 1s cubic-bezier(.2,.8,.2,1), filter 1s cubic-bezier(.2,.8,.2,1); }
   .reveal.in { opacity: 1; transform: none; filter: blur(0); }
   @media (prefers-reduced-motion: reduce){
@@ -258,10 +249,33 @@
           <span class="tag">AWS Lambda</span>
           <span class="tag">Amazon S3</span>
         </div>
-        <div style="display:flex; gap:12px; flex-wrap:wrap">
-          <a class="btn btn-primary" href="platform.html" target="_blank" rel="noopener">Launch Interactive Demo ↗</a>
-          <a class="btn btn-glass" href="https://github.com/mbenyazed/aws-multiregion-failover" target="_blank" rel="noopener">View on GitHub ↗</a>
-        </div>      </div>
+        <a class="btn btn-glass" href="https://github.com/mbenyazed/aws-multiregion-failover" target="_blank" rel="noopener">View on GitHub ↗</a>
+      </div>
+    </div>
+    <div class="project-card glass shine reveal" style="margin-top:24px">
+      <a href="platform.html" target="_blank" rel="noopener" class="imgwrap" style="display:block; position:relative; height:400px; padding:0; overflow:hidden">
+        <iframe src="platform.html" title="Event-driven SaaS platform interactive demo" loading="lazy" style="position:absolute; top:0; left:0; width:250%; height:1000px; transform:scale(0.4); transform-origin:top left; border:0; pointer-events:none"></iframe>
+        <span style="position:absolute; inset:0; display:flex; align-items:flex-end; padding:20px; font-weight:600; color:#fff; background:linear-gradient(180deg, transparent 55%, rgba(4,6,12,0.9))">▶ Launch interactive demo</span>
+      </a>
+      <div class="body">
+        <span class="project-num metal-text">02 — INTERACTIVE DEMO</span>
+        <h3>Event-Driven SaaS Platform on AWS</h3>
+        <p class="desc">An interactive, explorable production topology — edge security, a multi-AZ VPC of Fargate microservices, an asynchronous event backbone, and cross-cutting security, observability &amp; CI/CD planes. Filter any plane or run a live request trace right in the browser.</p>
+        <ul class="pillars">
+          <li><strong>Edge &amp; Network Security.</strong> WAF-fronted edge protecting a multi-AZ VPC that isolates public and private service tiers.</li>
+          <li><strong>Event Backbone.</strong> Decoupled Fargate microservices communicating asynchronously through an event-driven messaging layer.</li>
+          <li><strong>Cross-Cutting Planes.</strong> Toggle security, observability, and CI/CD overlays to see how each concern threads through the platform.</li>
+        </ul>
+        <div class="tags">
+          <span class="tag">AWS Fargate</span>
+          <span class="tag">Multi-AZ VPC</span>
+          <span class="tag">Event-Driven</span>
+          <span class="tag">Microservices</span>
+          <span class="tag">Observability</span>
+          <span class="tag">CI/CD</span>
+        </div>
+        <a class="btn btn-primary" href="platform.html" target="_blank" rel="noopener">Launch Interactive Demo ↗</a>
+      </div>
     </div>
   </div>
 </section>
