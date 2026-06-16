@@ -33,6 +33,7 @@
   }
   a { color: var(--silver); text-decoration: none; }
 
+  /* ===== BACKGROUND ===== */
   .glow { position: fixed; inset: 0; z-index: -3; overflow: hidden; }
   .glow span { position: absolute; border-radius: 50%; filter: blur(130px); will-change: transform; }
   .glow .g1 { width: 60vw; height: 60vw; top: -22vw; left: -8vw; opacity: 0.16; background: radial-gradient(circle, #cfe0ff 0%, transparent 70%); animation: drift1 42s ease-in-out infinite alternate; }
@@ -53,11 +54,13 @@
   }
   @keyframes gridpan { to { background-position: 62px 62px; } }
 
+  /* sweeping page-wide reflection beam */
   .beam { position: fixed; top: 0; left: -40%; width: 35%; height: 100vh; z-index: -1; pointer-events: none;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
     transform: skewX(-18deg); animation: beam 17s ease-in-out infinite; }
   @keyframes beam { 0% { left: -45%; } 60%, 100% { left: 135%; } }
 
+  /* floating particles */
   .particles { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
   .particles i { position: absolute; bottom: -10px; width: 3px; height: 3px; border-radius: 50%;
     background: rgba(255,255,255,0.55); box-shadow: 0 0 8px rgba(207,224,255,0.7); animation: rise linear infinite; }
@@ -67,6 +70,7 @@
   .metal-text { background: var(--metal); background-size: 250% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 9s linear infinite; }
   @keyframes shimmer { to { background-position: -250% center; } }
 
+  /* ===== NAV ===== */
   nav {
     position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
     z-index: 100; width: calc(100% - 36px); max-width: 940px;
@@ -84,6 +88,7 @@
   nav .nav-cta { background: var(--metal); background-size: 250% auto; color: #0a0a0c; font-weight: 600; animation: shimmer 9s linear infinite; }
   @media (max-width: 680px){ nav ul li:not(.cta-li){ display: none; } }
 
+  /* ===== HERO ===== */
   header.hero { min-height: 100vh; display: flex; align-items: center; padding: 140px 0 90px; position: relative; }
   .hero-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 60px; align-items: center; width: 100%; }
   @media (max-width: 820px){ .hero-grid { grid-template-columns: 1fr; gap: 48px; text-align: center; } .hero-photo { order: -1; } .cta, .badge-row { justify-content: center; } }
@@ -103,6 +108,7 @@
   .btn-glass { background: var(--glass-2); border: 1px solid var(--border); color: var(--text); backdrop-filter: blur(10px); }
   .btn-glass:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
 
+  /* Hero photo / monogram fallback */
   .hero-photo { display: flex; justify-content: center; }
   .avatar { position: relative; width: clamp(220px, 30vw, 320px); aspect-ratio: 1/1; border-radius: 50%;
     background: var(--metal); background-size: 250% auto; animation: shimmer 11s linear infinite, float 10s ease-in-out infinite;
@@ -116,6 +122,7 @@
   .avatar .initials { font-size: clamp(3rem, 8vw, 5rem); font-weight: 800; color: rgba(10,10,12,0.82); letter-spacing: -0.03em; }
   .avatar img { position: absolute; inset: 5px; width: calc(100% - 10px); height: calc(100% - 10px); object-fit: cover; object-position: 0% 25%; border-radius: 50%; }
 
+  /* ===== SECTIONS ===== */
   section { padding: 110px 0; position: relative; }
   .section-label { color: var(--silver); font-weight: 600; font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px; }
   h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 28px; line-height: 1.08; }
@@ -124,19 +131,21 @@
 
   .glass { background: var(--glass); border: 1px solid var(--border-soft); backdrop-filter: blur(20px) saturate(130%); -webkit-backdrop-filter: blur(20px) saturate(130%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
 
+  /* gloss sweep on hover */
   .shine { position: relative; overflow: hidden; }
   .shine::after { content: ""; position: absolute; top: 0; left: -160%; width: 80%; height: 100%; transform: skewX(-20deg);
     background: linear-gradient(110deg, transparent, rgba(255,255,255,0.13), transparent); transition: left .85s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
   .shine:hover::after { left: 160%; }
 
+  /* PROJECT */
   .project-card { border-radius: 26px; transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .4s; }
   .project-card:hover { transform: translateY(-6px); box-shadow: 0 40px 90px -40px rgba(0,0,0,0.9); border-color: var(--border); }
   .project-card .imgwrap { background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent); padding: 26px; border-bottom: 1px solid var(--border-soft); }
   .project-card img.diagram { width: 100%; height: auto; border-radius: 14px; display: block; }
   .project-card .body { padding: 36px 38px 40px; }
   .project-num { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.18em; }
-  .project-card h3 { font-size: clamp(1.4rem, 3vw, 1.85rem); font-weight: 700; margin: 8px 0 16px; letter-spacing: -0.02em; }
-  .project-card p.desc { color: var(--muted); margin-bottom: 26px; font-size: 1.08rem; max-width: 760px; }
+  .project-card h3, .lab-card h3 { font-size: clamp(1.4rem, 3vw, 1.85rem); font-weight: 700; margin: 8px 0 16px; letter-spacing: -0.02em; }
+  .project-card p.desc, .lab-card p.desc { color: var(--muted); margin-bottom: 26px; font-size: 1.08rem; max-width: 760px; }
   .pillars { list-style: none; display: grid; gap: 18px; margin-bottom: 30px; }
   .pillars li { padding-left: 30px; position: relative; color: var(--muted); }
   .pillars li::before { content: ""; position: absolute; left: 0; top: 8px; width: 11px; height: 11px; border-radius: 50%; background: var(--metal); background-size: 250% auto; box-shadow: 0 0 10px rgba(207,224,255,0.6); animation: shimmer 9s linear infinite; }
@@ -145,6 +154,38 @@
   .tag { background: rgba(255,255,255,0.05); border: 1px solid var(--border-soft); color: var(--muted); padding: 6px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 500; transition: transform .25s, border-color .25s, color .25s; }
   .tag:hover { transform: translateY(-2px); border-color: var(--border); color: var(--text); }
 
+  /* LABS */
+  .lab-card { border-radius: 26px; transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .4s; }
+  .lab-card:hover { transform: translateY(-6px); box-shadow: 0 40px 90px -40px rgba(0,0,0,0.9); border-color: var(--border); }
+  .lab-card .body { padding: 36px 38px 40px; }
+  .lab-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; margin-top: 32px; }
+  .shot { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--border-soft);
+    background: rgba(255,255,255,0.03); cursor: zoom-in; transition: transform .4s cubic-bezier(.2,.8,.2,1), border-color .4s, box-shadow .4s; }
+  .shot:hover { transform: translateY(-5px) scale(1.012); border-color: var(--border); box-shadow: 0 24px 50px -24px rgba(0,0,0,0.85); }
+  .shot img { width: 100%; height: 168px; object-fit: cover; object-position: top; display: block; background: #0d0e11;
+    transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+  .shot:hover img { transform: scale(1.06); }
+  .shot figcaption { position: absolute; inset: auto 0 0 0; padding: 22px 14px 12px; font-size: 0.8rem; font-weight: 600; color: #eef1f4;
+    background: linear-gradient(180deg, transparent, rgba(4,6,12,0.92)); letter-spacing: -0.01em; }
+  .shot .zoom-ic { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    background: rgba(13,14,17,0.6); border: 1px solid var(--border); backdrop-filter: blur(8px); color: var(--silver); opacity: 0; transition: opacity .35s; }
+  .shot:hover .zoom-ic { opacity: 1; }
+  .shot .zoom-ic svg { width: 14px; height: 14px; }
+
+  /* LIGHTBOX */
+  .lightbox { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 4vw;
+    background: rgba(4,5,8,0.86); backdrop-filter: blur(16px) saturate(120%); -webkit-backdrop-filter: blur(16px) saturate(120%); cursor: zoom-out; }
+  .lightbox.open { display: flex; animation: lbfade .35s ease; }
+  @keyframes lbfade { from { opacity: 0; } to { opacity: 1; } }
+  .lightbox figure { max-width: 1000px; width: 100%; text-align: center; animation: lbrise .4s cubic-bezier(.2,.8,.2,1); }
+  @keyframes lbrise { from { transform: translateY(22px) scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
+  .lightbox img { max-width: 100%; max-height: 80vh; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 50px 120px -30px rgba(0,0,0,0.95); }
+  .lightbox figcaption { margin-top: 18px; color: var(--silver); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.01em; }
+  .lightbox .lb-close { position: fixed; top: 24px; right: 28px; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); font-size: 1.3rem; cursor: pointer; transition: background .25s, transform .25s; }
+  .lightbox .lb-close:hover { background: rgba(255,255,255,0.14); transform: rotate(90deg); }
+
+  /* SKILLS */
   .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 22px; }
   .skill-card { border-radius: 22px; padding: 32px; transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s; }
   .skill-card:hover { transform: translateY(-6px); border-color: var(--border); }
@@ -155,6 +196,7 @@
   .skill-card li { color: var(--muted); font-size: 0.98rem; padding-left: 18px; position: relative; }
   .skill-card li::before { content: "›"; position: absolute; left: 0; color: var(--silver); font-weight: 700; }
 
+  /* HONORS */
   .honors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 22px; }
   .honor-card { border-radius: 22px; padding: 32px; transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s; }
   .honor-card:hover { transform: translateY(-6px); border-color: var(--border); }
@@ -164,6 +206,7 @@
   .honor-card .meta { color: var(--silver); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
   .honor-card p { color: var(--muted); font-size: 0.96rem; }
 
+  /* CONTACT */
   .contact { text-align: center; }
   .contact-card { border-radius: 30px; padding: clamp(40px, 7vw, 80px) 32px; }
   .contact h2 { margin-bottom: 18px; }
@@ -172,6 +215,7 @@
 
   footer { padding: 50px 0 60px; text-align: center; color: var(--muted); font-size: 0.86rem; }
 
+  /* ===== SCROLL REVEAL (cinematic) ===== */
   .reveal { opacity: 0; transform: translateY(42px) scale(0.985); filter: blur(8px); transition: opacity 1s cubic-bezier(.2,.8,.2,1), transform 1s cubic-bezier(.2,.8,.2,1), filter 1s cubic-bezier(.2,.8,.2,1); }
   .reveal.in { opacity: 1; transform: none; filter: blur(0); }
   @media (prefers-reduced-motion: reduce){
@@ -192,6 +236,7 @@
   <ul>
     <li><a href="#about">About</a></li>
     <li><a href="#project">Project</a></li>
+    <li><a href="#labs">Labs</a></li>
     <li><a href="#honors">Honors</a></li>
     <li><a href="#skills">Skills</a></li>
     <li class="cta-li"><a class="nav-cta" href="#contact">Contact</a></li>
@@ -286,6 +331,67 @@
   </div>
 </section>
 
+<section id="labs">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-label">Hands-On Networking</div>
+      <h2>Completed Packet Tracer labs</h2>
+    </div>
+    <div class="lab-card glass shine reveal">
+      <div class="body">
+        <span class="project-num metal-text">LAB 01 · SCALING NETWORKS</span>
+        <h3>Resilient Campus LAN with First-Hop Failover</h3>
+        <p class="desc">A redundant multi-switch, multi-router campus topology engineered to survive link and gateway failures with zero manual intervention. Built and verified end to end in Cisco Packet Tracer, every layer is proven with live command output and a real failover capture.</p>
+        <ul class="pillars">
+          <li><strong>Link Aggregation.</strong> An LACP EtherChannel bundles two physical links into one logical trunk for added bandwidth and instant resilience if a member link drops.</li>
+          <li><strong>Loop-Free Switching.</strong> Rapid PVST+ spanning tree elects a root bridge and blocks redundant paths, keeping the Layer 2 domain stable and loop-free.</li>
+          <li><strong>First-Hop Redundancy.</strong> HSRP presents a single virtual gateway across two routers, failing over automatically when the active router goes down.</li>
+          <li><strong>Dynamic Routing.</strong> EIGRP converges across the serial WAN link and propagates a redistributed default route for full end-to-end reachability.</li>
+        </ul>
+        <div class="tags">
+          <span class="tag">EtherChannel / LACP</span>
+          <span class="tag">Rapid PVST+</span>
+          <span class="tag">HSRP</span>
+          <span class="tag">EIGRP</span>
+          <span class="tag">802.1Q Trunking</span>
+          <span class="tag">Serial WAN</span>
+        </div>
+
+        <div class="lab-gallery">
+          <figure class="shot reveal" data-full="lab1-topology.png" data-cap="Full redundant topology: dual routers, EtherChannel-linked switches, HSRP gateway, and a serial WAN link.">
+            <img src="lab1-topology.png" alt="Lab topology diagram" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Network Topology</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-etherchannel.png" data-cap="show etherchannel summary — Po1 (SU) bundled over LACP using Fa0/3 and Fa0/4, both in use.">
+            <img src="lab1-etherchannel.png" alt="EtherChannel summary output" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>EtherChannel · LACP Bundle</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-spanning-tree.png" data-cap="show spanning-tree — Rapid PVST+ active, root bridge elected, all ports in a stable forwarding state.">
+            <img src="lab1-spanning-tree.png" alt="Spanning tree output" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Rapid PVST+ Spanning Tree</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-hsrp.png" data-cap="show standby brief — HSRP group 1 Active with priority 200, virtual gateway 172.16.0.2, standby peer 172.16.0.3.">
+            <img src="lab1-hsrp.png" alt="HSRP standby brief output" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>HSRP First-Hop Redundancy</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-failover.png" data-cap="The failover moment: a continuous ping to the virtual gateway survives the active router going down, dropping only 2 packets before the standby takes over.">
+            <img src="lab1-failover.png" alt="HSRP failover ping capture" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Live Failover Capture</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-eigrp.png" data-cap="show ip route eigrp — EIGRP-learned (D) route across the serial link plus a redistributed external default route (D*EX).">
+            <img src="lab1-eigrp.png" alt="EIGRP routing table output" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>EIGRP Routing Table</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-reachability.png" data-cap="End-to-end reachability: a host pings the far-side router loopback (209.165.200.193) with TTL 254, confirming the packet traversed both routers.">
+            <img src="lab1-reachability.png" alt="End to end reachability ping" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>End-to-End Reachability</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="honors">
   <div class="wrap">
     <div class="reveal">
@@ -375,12 +481,22 @@
   <div class="wrap">© 2026 Mamoun Benyazed · Designed &amp; built with GitHub Pages</div>
 </footer>
 
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+  <figure>
+    <img id="lbImg" src="" alt="" />
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+</div>
+
 <script>
+  /* staggered cinematic reveal */
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 
+  /* hero loads with a sweeping stagger */
   window.addEventListener('load', () => {
     document.querySelectorAll('header.hero .reveal').forEach((el, i) => {
       el.style.transitionDelay = (i * 0.12) + 's';
@@ -388,6 +504,7 @@
     });
   });
 
+  /* drifting particles */
   const p = document.getElementById('particles');
   for (let i = 0; i < 34; i++) {
     const dot = document.createElement('i');
@@ -401,6 +518,23 @@
     p.appendChild(dot);
   }
 
+  /* lightbox for lab screenshots */
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbCap = document.getElementById('lbCap');
+  const openLb = (full, cap) => {
+    lbImg.src = full; lbImg.alt = cap; lbCap.textContent = cap;
+    lb.classList.add('open'); document.body.style.overflow = 'hidden';
+  };
+  const closeLb = () => { lb.classList.remove('open'); document.body.style.overflow = ''; };
+  document.querySelectorAll('.shot').forEach((s) => {
+    s.addEventListener('click', () => openLb(s.dataset.full, s.dataset.cap));
+  });
+  document.getElementById('lbClose').addEventListener('click', closeLb);
+  lb.addEventListener('click', (e) => { if (e.target === lb || e.target.tagName === 'FIGURE') closeLb(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
+
+  /* mouse parallax on background glows */
   const glows = document.querySelectorAll('.glow span');
   window.addEventListener('mousemove', (e) => {
     const x = (e.clientX / window.innerWidth - 0.5);
