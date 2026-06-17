@@ -277,35 +277,12 @@
       <h2>Featured architecture</h2>
     </div>
     <div class="project-card glass shine reveal">
-      <div class="imgwrap">
-        <img class="diagram" src="https://raw.githubusercontent.com/mbenyazed/aws-multiregion-failover/main/architecture.png" alt="AWS Multi-Region Active-Passive Failover architecture diagram" />
-      </div>
-      <div class="body">
-        <span class="project-num metal-text">01 · AWS DISASTER RECOVERY</span>
-        <h3>Multi-Region Active-Passive Failover with Auto-Recovery</h3>
-        <p class="desc">A production-grade, event-driven disaster-recovery blueprint designed to survive catastrophic regional failures while preserving client connectivity.</p>
-        <ul class="pillars">
-          <li><strong>Edge Resiliency.</strong> Amazon CloudFront Origin Groups route traffic away from a failing origin instantly, without waiting for slow DNS TTL cutovers.</li>
-          <li><strong>Automated State Recovery.</strong> CloudWatch monitors 5xx errors, alerts via SNS, and triggers a Lambda function that promotes the standby RDS PostgreSQL replica, with no manual intervention.</li>
-          <li><strong>Graceful Degradation.</strong> An S3-hosted static maintenance page catches user traffic during the brief promotion window, preventing transaction timeouts.</li>
-        </ul>
-        <div class="tags">
-          <span class="tag">Amazon CloudFront</span>
-          <span class="tag">RDS PostgreSQL</span>
-          <span class="tag">CloudWatch</span>
-          <span class="tag">SNS</span>
-          <span class="tag">AWS Lambda</span>
-          <span class="tag">Amazon S3</span>
-        </div>
-      </div>
-    </div>
-    <div class="project-card glass shine reveal" style="margin-top:24px">
       <a href="platform.html" target="_blank" rel="noopener" class="imgwrap" style="display:block; position:relative; height:400px; padding:0; overflow:hidden">
         <iframe src="platform.html" title="Event-driven SaaS platform interactive demo" loading="lazy" style="position:absolute; top:0; left:0; width:250%; height:1000px; transform:scale(0.4); transform-origin:top left; border:0; pointer-events:none"></iframe>
         <span style="position:absolute; inset:0; display:flex; align-items:flex-end; padding:20px; font-weight:600; color:#fff; background:linear-gradient(180deg, transparent 55%, rgba(4,6,12,0.9))">▶ Launch interactive demo</span>
       </a>
       <div class="body">
-        <span class="project-num metal-text">02 · INTERACTIVE DEMO</span>
+        <span class="project-num metal-text">01 · INTERACTIVE DEMO</span>
         <h3>Event-Driven SaaS Platform on AWS</h3>
         <p class="desc">An interactive, explorable production topology featuring edge security, a multi-AZ VPC of Fargate microservices, an asynchronous event backbone, and cross-cutting security, observability &amp; CI/CD planes. Filter any plane or run a live request trace right in the browser.</p>
         <ul class="pillars">
@@ -323,6 +300,9 @@
         </div>
         <a class="btn btn-primary" href="platform.html" target="_blank" rel="noopener">Launch Interactive Demo ↗</a>
       </div>
+    </div>
+    <div class="reveal" style="text-align:center; margin-top:34px">
+      <a class="btn btn-primary" href="projects.html">View all projects ↗</a>
     </div>
   </div>
 </section>
