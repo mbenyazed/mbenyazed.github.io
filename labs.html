@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Completed Packet Tracer Labs — Mamoun Benyazed</title>
+<meta name="description" content="Completed Cisco Packet Tracer labs by Mamoun Benyazed — redundant campus LAN with HSRP failover, and a multi-area OSPF enterprise WAN. Verified end to end with live command output." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #08090b;
+    --text: #f2f3f5;
+    --muted: #93979f;
+    --glass: rgba(255,255,255,0.04);
+    --glass-2: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.14);
+    --border-soft: rgba(255,255,255,0.08);
+    --silver: #dfe3e8;
+    --metal: linear-gradient(110deg, #8d9197 0%, #ffffff 18%, #d2d6db 32%, #ffffff 46%, #9aa0a8 60%, #ffffff 74%, #c4c9d0 88%, #ffffff 100%);
+    --maxw: 1080px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: var(--silver); text-decoration: none; }
+
+  /* ===== BACKGROUND ===== */
+  .glow { position: fixed; inset: 0; z-index: -3; overflow: hidden; }
+  .glow span { position: absolute; border-radius: 50%; filter: blur(130px); will-change: transform; }
+  .glow .g1 { width: 60vw; height: 60vw; top: -22vw; left: -8vw; opacity: 0.16; background: radial-gradient(circle, #cfe0ff 0%, transparent 70%); animation: drift1 42s ease-in-out infinite alternate; }
+  .glow .g2 { width: 52vw; height: 52vw; bottom: -22vw; right: -8vw; opacity: 0.12; background: radial-gradient(circle, #aeb4bd 0%, transparent 70%); animation: drift2 48s ease-in-out infinite alternate; }
+  .glow .g3 { width: 38vw; height: 38vw; top: 38%; left: 50%; opacity: 0.10; background: radial-gradient(circle, #d8f0ff 0%, transparent 70%); animation: drift3 54s ease-in-out infinite alternate; }
+  @keyframes drift1 { to { transform: translate(12vw, 8vh) scale(1.18); } }
+  @keyframes drift2 { to { transform: translate(-10vw, -6vh) scale(1.12); } }
+  @keyframes drift3 { to { transform: translate(-16vw, 10vh) scale(0.9); } }
+
+  .grid-overlay {
+    position: fixed; inset: 0; z-index: -2; pointer-events: none; opacity: 0.55;
+    background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 62px 62px;
+    mask-image: radial-gradient(circle at 50% 26%, black, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at 50% 26%, black, transparent 80%);
+    animation: gridpan 50s linear infinite;
+  }
+  @keyframes gridpan { to { background-position: 62px 62px; } }
+
+  .beam { position: fixed; top: 0; left: -40%; width: 35%; height: 100vh; z-index: -1; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    transform: skewX(-18deg); animation: beam 17s ease-in-out infinite; }
+  @keyframes beam { 0% { left: -45%; } 60%, 100% { left: 135%; } }
+
+  .particles { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .particles i { position: absolute; bottom: -10px; width: 3px; height: 3px; border-radius: 50%;
+    background: rgba(255,255,255,0.55); box-shadow: 0 0 8px rgba(207,224,255,0.7); animation: rise linear infinite; }
+  @keyframes rise { 0% { transform: translateY(0) scale(1); opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.5; } 100% { transform: translateY(-105vh) scale(0.4); opacity: 0; } }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+  .metal-text { background: var(--metal); background-size: 250% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 9s linear infinite; }
+  @keyframes shimmer { to { background-position: -250% center; } }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
+    z-index: 100; width: calc(100% - 36px); max-width: 940px;
+    background: rgba(13,14,17,0.62); backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid var(--border); border-radius: 999px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 14px 11px 24px;
+    box-shadow: 0 8px 40px -12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  nav .brand { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
+  nav ul { display: flex; gap: 8px; list-style: none; align-items: center; }
+  nav .nav-cta { background: var(--metal); background-size: 250% auto; color: #0a0a0c; font-weight: 600; animation: shimmer 9s linear infinite;
+    padding: 8px 16px; border-radius: 999px; font-size: 0.9rem; }
+
+  /* ===== HEADER ===== */
+  header.labs-hero { padding: 150px 0 30px; position: relative; }
+  header.labs-hero .section-label { color: var(--silver); font-weight: 600; font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px; }
+  header.labs-hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.04; }
+  header.labs-hero p.lead { max-width: 620px; margin-top: 22px; color: var(--muted); font-size: clamp(1.02rem, 2vw, 1.18rem); }
+  .back-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; color: var(--muted); font-weight: 500; font-size: 0.95rem; transition: color .25s, gap .25s; }
+  .back-link:hover { color: var(--text); gap: 12px; }
+
+  /* ===== SECTIONS ===== */
+  section { padding: 50px 0; position: relative; }
+  .section-label { color: var(--silver); font-weight: 600; font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px; }
+
+  .glass { background: var(--glass); border: 1px solid var(--border-soft); backdrop-filter: blur(20px) saturate(130%); -webkit-backdrop-filter: blur(20px) saturate(130%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+
+  .shine { position: relative; overflow: hidden; }
+  .shine::after { content: ""; position: absolute; top: 0; left: -160%; width: 80%; height: 100%; transform: skewX(-20deg);
+    background: linear-gradient(110deg, transparent, rgba(255,255,255,0.13), transparent); transition: left .85s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  .shine:hover::after { left: 160%; }
+
+  /* LAB CARD */
+  .lab-card { border-radius: 26px; transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .4s; margin-bottom: 34px; }
+  .lab-card:hover { transform: translateY(-6px); box-shadow: 0 40px 90px -40px rgba(0,0,0,0.9); border-color: var(--border); }
+  .lab-card .body { padding: 36px 38px 40px; }
+  .lab-card h3 { font-size: clamp(1.4rem, 3vw, 1.85rem); font-weight: 700; margin: 8px 0 16px; letter-spacing: -0.02em; }
+  .lab-card p.desc { color: var(--muted); margin-bottom: 26px; font-size: 1.08rem; max-width: 760px; }
+  .project-num { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.18em; }
+
+  .pillars { list-style: none; display: grid; gap: 18px; margin-bottom: 30px; }
+  .pillars li { padding-left: 30px; position: relative; color: var(--muted); }
+  .pillars li::before { content: ""; position: absolute; left: 0; top: 8px; width: 11px; height: 11px; border-radius: 50%; background: var(--metal); background-size: 250% auto; box-shadow: 0 0 10px rgba(207,224,255,0.6); animation: shimmer 9s linear infinite; }
+  .pillars strong { color: var(--text); font-weight: 600; }
+  .tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .tag { background: rgba(255,255,255,0.05); border: 1px solid var(--border-soft); color: var(--muted); padding: 6px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 500; transition: transform .25s, border-color .25s, color .25s; }
+  .tag:hover { transform: translateY(-2px); border-color: var(--border); color: var(--text); }
+
+  .lab-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; margin-top: 32px; }
+  .shot { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--border-soft);
+    background: rgba(255,255,255,0.03); cursor: zoom-in; transition: transform .4s cubic-bezier(.2,.8,.2,1), border-color .4s, box-shadow .4s; }
+  .shot:hover { transform: translateY(-5px) scale(1.012); border-color: var(--border); box-shadow: 0 24px 50px -24px rgba(0,0,0,0.85); }
+  .shot img { width: 100%; height: 168px; object-fit: cover; object-position: top; display: block; background: #0d0e11;
+    transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+  .shot:hover img { transform: scale(1.06); }
+  .shot figcaption { position: absolute; inset: auto 0 0 0; padding: 22px 14px 12px; font-size: 0.8rem; font-weight: 600; color: #eef1f4;
+    background: linear-gradient(180deg, transparent, rgba(4,6,12,0.92)); letter-spacing: -0.01em; }
+  .shot .zoom-ic { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    background: rgba(13,14,17,0.6); border: 1px solid var(--border); backdrop-filter: blur(8px); color: var(--silver); opacity: 0; transition: opacity .35s; }
+  .shot:hover .zoom-ic { opacity: 1; }
+  .shot .zoom-ic svg { width: 14px; height: 14px; }
+
+  /* LIGHTBOX */
+  .lightbox { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 4vw;
+    background: rgba(4,5,8,0.86); backdrop-filter: blur(16px) saturate(120%); -webkit-backdrop-filter: blur(16px) saturate(120%); cursor: zoom-out; }
+  .lightbox.open { display: flex; animation: lbfade .35s ease; }
+  @keyframes lbfade { from { opacity: 0; } to { opacity: 1; } }
+  .lightbox figure { max-width: 1000px; width: 100%; text-align: center; animation: lbrise .4s cubic-bezier(.2,.8,.2,1); }
+  @keyframes lbrise { from { transform: translateY(22px) scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
+  .lightbox img { max-width: 100%; max-height: 80vh; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 50px 120px -30px rgba(0,0,0,0.95); }
+  .lightbox figcaption { margin-top: 18px; color: var(--silver); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.01em; }
+  .lightbox .lb-close { position: fixed; top: 24px; right: 28px; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); font-size: 1.3rem; cursor: pointer; transition: background .25s, transform .25s; }
+  .lightbox .lb-close:hover { background: rgba(255,255,255,0.14); transform: rotate(90deg); }
+
+  footer { padding: 50px 0 60px; text-align: center; color: var(--muted); font-size: 0.86rem; }
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal { opacity: 0; transform: translateY(42px) scale(0.985); filter: blur(8px); transition: opacity 1s cubic-bezier(.2,.8,.2,1), transform 1s cubic-bezier(.2,.8,.2,1), filter 1s cubic-bezier(.2,.8,.2,1); }
+  .reveal.in { opacity: 1; transform: none; filter: blur(0); }
+  @media (prefers-reduced-motion: reduce){
+    .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+    .glow span, .beam, .grid-overlay, .metal-text, .nav-cta, .particles { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow"><span class="g1"></span><span class="g2"></span><span class="g3"></span></div>
+<div class="grid-overlay"></div>
+<div class="beam"></div>
+<div class="particles" id="particles"></div>
+
+<nav>
+  <span class="brand">Mamoun Benyazed</span>
+  <ul>
+    <li><a class="nav-cta" href="index.html">← Portfolio</a></li>
+  </ul>
+</nav>
+
+<header class="labs-hero">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-label">Hands-On Networking</div>
+      <h1>Completed <span class="metal-text">Packet Tracer</span> labs</h1>
+      <p class="lead">Enterprise-grade Cisco builds, configured and verified end to end. Each lab below is proven with live command output, routing tables, and real failure-recovery captures, not just a finished topology.</p>
+      <a class="back-link" href="index.html">← Back to portfolio</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+
+    <!-- LAB 01 -->
+    <div class="lab-card glass shine reveal">
+      <div class="body">
+        <span class="project-num metal-text">LAB 01 · SCALING NETWORKS</span>
+        <h3>Resilient Campus LAN with First-Hop Failover</h3>
+        <p class="desc">A redundant multi-switch, multi-router campus topology engineered to survive link and gateway failures with zero manual intervention. Built and verified end to end in Cisco Packet Tracer, every layer is proven with live command output and a real failover capture.</p>
+        <ul class="pillars">
+          <li><strong>Link Aggregation.</strong> An LACP EtherChannel bundles two physical links into one logical trunk for added bandwidth and instant resilience if a member link drops.</li>
+          <li><strong>Loop-Free Switching.</strong> Rapid PVST+ spanning tree elects a root bridge and blocks redundant paths, keeping the Layer 2 domain stable and loop-free.</li>
+          <li><strong>First-Hop Redundancy.</strong> HSRP presents a single virtual gateway across two routers, failing over automatically when the active router goes down.</li>
+          <li><strong>Dynamic Routing.</strong> EIGRP converges across the serial WAN link and propagates a redistributed default route for full end-to-end reachability.</li>
+        </ul>
+        <div class="tags">
+          <span class="tag">EtherChannel / LACP</span>
+          <span class="tag">Rapid PVST+</span>
+          <span class="tag">HSRP</span>
+          <span class="tag">EIGRP</span>
+          <span class="tag">802.1Q Trunking</span>
+          <span class="tag">Serial WAN</span>
+        </div>
+        <div class="lab-gallery">
+          <figure class="shot reveal" data-full="lab1-topology.png" data-cap="Full redundant topology: dual routers, EtherChannel-linked switches, HSRP gateway, and a serial WAN link.">
+            <img src="lab1-topology.png" alt="Lab topology diagram" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Network Topology</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-etherchannel.png" data-cap="show etherchannel summary — Po1 (SU) bundled over LACP using Fa0/3 and Fa0/4, both in use.">
+            <img src="lab1-etherchannel.png" alt="EtherChannel summary output" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>EtherChannel · LACP Bundle</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-spanning-tree.png" data-cap="show spanning-tree — Rapid PVST+ active, root bridge elected, all ports in a stable forwarding state.">
+            <img src="lab1-spanning-tree.png" alt="Spanning tree output" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Rapid PVST+ Spanning Tree</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-hsrp.png" data-cap="show standby brief — HSRP group 1 Active with priority 200, virtual gateway 172.16.0.2, standby peer 172.16.0.3.">
+            <img src="lab1-hsrp.png" alt="HSRP standby brief output" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>HSRP First-Hop Redundancy</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-failover.png" data-cap="The failover moment: a continuous ping to the virtual gateway survives the active router going down, dropping only 2 packets before the standby takes over.">
+            <img src="lab1-failover.png" alt="HSRP failover ping capture" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Live Failover Capture</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-eigrp.png" data-cap="show ip route eigrp — EIGRP-learned (D) route across the serial link plus a redistributed external default route (D*EX).">
+            <img src="lab1-eigrp.png" alt="EIGRP routing table output" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>EIGRP Routing Table</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab1-reachability.png" data-cap="End-to-end reachability: a host pings the far-side router loopback (209.165.200.193) with TTL 254, confirming the packet traversed both routers.">
+            <img src="lab1-reachability.png" alt="End to end reachability ping" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>End-to-End Reachability</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAB 02 -->
+    <div class="lab-card glass shine reveal">
+      <div class="body">
+        <span class="project-num metal-text">LAB 02 · ENTERPRISE WAN</span>
+        <h3>Multi-Area OSPF Enterprise WAN</h3>
+        <p class="desc">A four-area OSPF-routed enterprise WAN: a backbone Area 0 of core routers interconnecting three branch areas through Area Border Routers. Built and verified end to end in Cisco Packet Tracer, with full adjacencies, inter-area route propagation, and cross-area reachability proven from live output.</p>
+        <ul class="pillars">
+          <li><strong>Multi-Area Design.</strong> Backbone Area 0 interconnects Areas 1, 2, and 3 through Area Border Routers, isolating each area's topology and keeping link-state databases lean.</li>
+          <li><strong>Area Border Routing.</strong> R2, R3, and R4 each act as an ABR, translating intra-area routes into inter-area (O IA) routes advertised across the backbone.</li>
+          <li><strong>Full-Mesh Backbone.</strong> A triangle of point-to-point links between the core routers provides redundant paths, so a single link failure cannot partition the network.</li>
+          <li><strong>Verified Convergence.</strong> Every router forms FULL adjacencies and learns every remote LAN, confirmed with live routing tables and cross-area reachability tests.</li>
+        </ul>
+        <div class="tags">
+          <span class="tag">OSPFv2</span>
+          <span class="tag">Multi-Area</span>
+          <span class="tag">ABR</span>
+          <span class="tag">Inter-Area Routing</span>
+          <span class="tag">Loopback Router-ID</span>
+          <span class="tag">Point-to-Point WAN</span>
+        </div>
+        <div class="lab-gallery">
+          <figure class="shot reveal" data-full="lab2-topology.png" data-cap="Four-area topology: backbone Area 0 connecting Areas 1, 2, and 3 through their area border routers.">
+            <img src="lab2-topology.png" alt="Multi-area OSPF topology" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Network Topology</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab2-ospf-neighbor.png" data-cap="show ip ospf neighbor — R1 holds three FULL adjacencies to the area border routers across the backbone.">
+            <img src="lab2-ospf-neighbor.png" alt="OSPF neighbor table" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>OSPF Adjacencies (FULL)</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab2-route-ospf.png" data-cap="show ip route ospf — intra-area (O) and inter-area (O IA) routes, proving every remote LAN is learned across areas.">
+            <img src="lab2-route-ospf.png" alt="OSPF routing table" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Inter-Area Routes (O IA)</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab2-protocols.png" data-cap="show ip protocols — OSPF process 1, router-id 1.1.1.1, and the four networks and areas this router participates in.">
+            <img src="lab2-protocols.png" alt="OSPF protocol detail" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>OSPF Protocol Detail</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab2-border-routers.png" data-cap="show ip ospf border-routers — R1 sees all three ABRs (2.2.2.2, 3.3.3.3, 4.4.4.4) reachable within Area 0.">
+            <img src="lab2-border-routers.png" alt="OSPF border routers" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Area Border Routers</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab2-ping-area2.png" data-cap="Cross-area reachability into Area 2 (192.168.30.10) with 0% packet loss.">
+            <img src="lab2-ping-area2.png" alt="Ping into Area 2" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Reachability · Area 2</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab2-ping-area3.png" data-cap="Cross-area reachability into Area 3 (192.168.0.10) with 0% packet loss.">
+            <img src="lab2-ping-area3.png" alt="Ping into Area 3" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Reachability · Area 3</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab2-ping-loopback.png" data-cap="Ping to a core router loopback (3.3.3.3) at TTL 254, confirming a fully routed multi-hop path across the backbone.">
+            <img src="lab2-ping-loopback.png" alt="Ping to loopback" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Backbone Loopback Reach</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">© 2026 Mamoun Benyazed · <a href="index.html">Back to portfolio</a></div>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+  <figure>
+    <img id="lbImg" src="" alt="" />
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+</div>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  window.addEventListener('load', () => {
+    document.querySelectorAll('header.labs-hero .reveal').forEach((el) => el.classList.add('in'));
+  });
+
+  const p = document.getElementById('particles');
+  for (let i = 0; i < 34; i++) {
+    const dot = document.createElement('i');
+    dot.style.left = Math.random() * 100 + 'vw';
+    const dur = 16 + Math.random() * 18;
+    dot.style.animationDuration = dur + 's';
+    dot.style.animationDelay = -Math.random() * dur + 's';
+    const s = 1.5 + Math.random() * 2.5;
+    dot.style.width = dot.style.height = s + 'px';
+    dot.style.opacity = 0.3 + Math.random() * 0.5;
+    p.appendChild(dot);
+  }
+
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbCap = document.getElementById('lbCap');
+  const openLb = (full, cap) => {
+    lbImg.src = full; lbImg.alt = cap; lbCap.textContent = cap;
+    lb.classList.add('open'); document.body.style.overflow = 'hidden';
+  };
+  const closeLb = () => { lb.classList.remove('open'); document.body.style.overflow = ''; };
+  document.querySelectorAll('.shot').forEach((s) => {
+    s.addEventListener('click', () => openLb(s.dataset.full, s.dataset.cap));
+  });
+  document.getElementById('lbClose').addEventListener('click', closeLb);
+  lb.addEventListener('click', (e) => { if (e.target === lb || e.target.tagName === 'FIGURE') closeLb(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
+
+  const glows = document.querySelectorAll('.glow span');
+  window.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5);
+    const y = (e.clientY / window.innerHeight - 0.5);
+    glows.forEach((g, i) => {
+      const d = (i + 1) * 18;
+      g.style.translate = (x * d) + 'px ' + (y * d) + 'px';
+    });
+  });
+</script>
+
+</body>
+</html>
