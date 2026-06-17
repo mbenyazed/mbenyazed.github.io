@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projects — Mamoun Benyazed</title>
+<meta name="description" content="Projects by Mamoun Benyazed — an interactive event-driven SaaS platform on AWS and a multi-region active-passive disaster-recovery architecture." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #08090b;
+    --text: #f2f3f5;
+    --muted: #93979f;
+    --glass: rgba(255,255,255,0.04);
+    --glass-2: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.14);
+    --border-soft: rgba(255,255,255,0.08);
+    --silver: #dfe3e8;
+    --metal: linear-gradient(110deg, #8d9197 0%, #ffffff 18%, #d2d6db 32%, #ffffff 46%, #9aa0a8 60%, #ffffff 74%, #c4c9d0 88%, #ffffff 100%);
+    --maxw: 1080px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: var(--silver); text-decoration: none; }
+
+  /* ===== BACKGROUND ===== */
+  .glow { position: fixed; inset: 0; z-index: -3; overflow: hidden; }
+  .glow span { position: absolute; border-radius: 50%; filter: blur(130px); will-change: transform; }
+  .glow .g1 { width: 60vw; height: 60vw; top: -22vw; left: -8vw; opacity: 0.16; background: radial-gradient(circle, #cfe0ff 0%, transparent 70%); animation: drift1 42s ease-in-out infinite alternate; }
+  .glow .g2 { width: 52vw; height: 52vw; bottom: -22vw; right: -8vw; opacity: 0.12; background: radial-gradient(circle, #aeb4bd 0%, transparent 70%); animation: drift2 48s ease-in-out infinite alternate; }
+  .glow .g3 { width: 38vw; height: 38vw; top: 38%; left: 50%; opacity: 0.10; background: radial-gradient(circle, #d8f0ff 0%, transparent 70%); animation: drift3 54s ease-in-out infinite alternate; }
+  @keyframes drift1 { to { transform: translate(12vw, 8vh) scale(1.18); } }
+  @keyframes drift2 { to { transform: translate(-10vw, -6vh) scale(1.12); } }
+  @keyframes drift3 { to { transform: translate(-16vw, 10vh) scale(0.9); } }
+
+  .grid-overlay {
+    position: fixed; inset: 0; z-index: -2; pointer-events: none; opacity: 0.55;
+    background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 62px 62px;
+    mask-image: radial-gradient(circle at 50% 26%, black, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at 50% 26%, black, transparent 80%);
+    animation: gridpan 50s linear infinite;
+  }
+  @keyframes gridpan { to { background-position: 62px 62px; } }
+
+  .beam { position: fixed; top: 0; left: -40%; width: 35%; height: 100vh; z-index: -1; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    transform: skewX(-18deg); animation: beam 17s ease-in-out infinite; }
+  @keyframes beam { 0% { left: -45%; } 60%, 100% { left: 135%; } }
+
+  .particles { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .particles i { position: absolute; bottom: -10px; width: 3px; height: 3px; border-radius: 50%;
+    background: rgba(255,255,255,0.55); box-shadow: 0 0 8px rgba(207,224,255,0.7); animation: rise linear infinite; }
+  @keyframes rise { 0% { transform: translateY(0) scale(1); opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.5; } 100% { transform: translateY(-105vh) scale(0.4); opacity: 0; } }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+  .metal-text { background: var(--metal); background-size: 250% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 9s linear infinite; }
+  @keyframes shimmer { to { background-position: -250% center; } }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
+    z-index: 100; width: calc(100% - 36px); max-width: 940px;
+    background: rgba(13,14,17,0.62); backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid var(--border); border-radius: 999px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 14px 11px 24px;
+    box-shadow: 0 8px 40px -12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  nav .brand { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
+  nav ul { display: flex; gap: 8px; list-style: none; align-items: center; }
+  nav .nav-cta { background: var(--metal); background-size: 250% auto; color: #0a0a0c; font-weight: 600; animation: shimmer 9s linear infinite;
+    padding: 8px 16px; border-radius: 999px; font-size: 0.9rem; }
+
+  /* ===== HEADER ===== */
+  header.page-hero { padding: 150px 0 30px; position: relative; }
+  header.page-hero .section-label { color: var(--silver); font-weight: 600; font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px; }
+  header.page-hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.04; }
+  header.page-hero p.lead { max-width: 620px; margin-top: 22px; color: var(--muted); font-size: clamp(1.02rem, 2vw, 1.18rem); }
+  .back-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; color: var(--muted); font-weight: 500; font-size: 0.95rem; transition: color .25s, gap .25s; }
+  .back-link:hover { color: var(--text); gap: 12px; }
+
+  /* ===== SECTIONS ===== */
+  section { padding: 50px 0; position: relative; }
+  .section-label { color: var(--silver); font-weight: 600; font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px; }
+
+  .glass { background: var(--glass); border: 1px solid var(--border-soft); backdrop-filter: blur(20px) saturate(130%); -webkit-backdrop-filter: blur(20px) saturate(130%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+
+  .shine { position: relative; overflow: hidden; }
+  .shine::after { content: ""; position: absolute; top: 0; left: -160%; width: 80%; height: 100%; transform: skewX(-20deg);
+    background: linear-gradient(110deg, transparent, rgba(255,255,255,0.13), transparent); transition: left .85s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  .shine:hover::after { left: 160%; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 9px; padding: 14px 26px; border-radius: 14px; font-weight: 600; font-size: 0.96rem;
+    transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .3s, background .3s, filter .3s; position: relative; overflow: hidden; }
+  .btn-primary { background: var(--metal); background-size: 250% auto; color: #0a0a0c; box-shadow: inset 0 1px 0 rgba(255,255,255,0.55); animation: shimmer 9s linear infinite; }
+  .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 16px 40px -12px rgba(207,224,255,0.5), inset 0 1px 0 rgba(255,255,255,0.55); filter: brightness(1.08); }
+
+  /* PROJECT CARD */
+  .project-card { border-radius: 26px; transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .4s; margin-bottom: 34px; }
+  .project-card:hover { transform: translateY(-6px); box-shadow: 0 40px 90px -40px rgba(0,0,0,0.9); border-color: var(--border); }
+  .project-card .imgwrap { background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent); padding: 26px; border-bottom: 1px solid var(--border-soft); }
+  .project-card img.diagram { width: 100%; height: auto; border-radius: 14px; display: block; }
+  .project-card .body { padding: 36px 38px 40px; }
+  .project-num { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.18em; }
+  .project-card h3 { font-size: clamp(1.4rem, 3vw, 1.85rem); font-weight: 700; margin: 8px 0 16px; letter-spacing: -0.02em; }
+  .project-card p.desc { color: var(--muted); margin-bottom: 26px; font-size: 1.08rem; max-width: 760px; }
+  .pillars { list-style: none; display: grid; gap: 18px; margin-bottom: 30px; }
+  .pillars li { padding-left: 30px; position: relative; color: var(--muted); }
+  .pillars li::before { content: ""; position: absolute; left: 0; top: 8px; width: 11px; height: 11px; border-radius: 50%; background: var(--metal); background-size: 250% auto; box-shadow: 0 0 10px rgba(207,224,255,0.6); animation: shimmer 9s linear infinite; }
+  .pillars strong { color: var(--text); font-weight: 600; }
+  .tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .tag { background: rgba(255,255,255,0.05); border: 1px solid var(--border-soft); color: var(--muted); padding: 6px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 500; transition: transform .25s, border-color .25s, color .25s; }
+  .tag:hover { transform: translateY(-2px); border-color: var(--border); color: var(--text); }
+
+  footer { padding: 50px 0 60px; text-align: center; color: var(--muted); font-size: 0.86rem; }
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal { opacity: 0; transform: translateY(42px) scale(0.985); filter: blur(8px); transition: opacity 1s cubic-bezier(.2,.8,.2,1), transform 1s cubic-bezier(.2,.8,.2,1), filter 1s cubic-bezier(.2,.8,.2,1); }
+  .reveal.in { opacity: 1; transform: none; filter: blur(0); }
+  @media (prefers-reduced-motion: reduce){
+    .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+    .glow span, .beam, .grid-overlay, .metal-text, .btn-primary, .nav-cta, .particles { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow"><span class="g1"></span><span class="g2"></span><span class="g3"></span></div>
+<div class="grid-overlay"></div>
+<div class="beam"></div>
+<div class="particles" id="particles"></div>
+
+<nav>
+  <span class="brand">Mamoun Benyazed</span>
+  <ul>
+    <li><a class="nav-cta" href="index.html">← Portfolio</a></li>
+  </ul>
+</nav>
+
+<header class="page-hero">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-label">Selected Work</div>
+      <h1>Projects &amp; <span class="metal-text">architecture</span></h1>
+      <p class="lead">Production-grade cloud and infrastructure builds, from an explorable event-driven platform to a multi-region disaster-recovery blueprint designed to stay online when a whole region fails.</p>
+      <a class="back-link" href="index.html">← Back to portfolio</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+
+    <!-- PROJECT 01 -->
+    <div class="project-card glass shine reveal">
+      <a href="platform.html" target="_blank" rel="noopener" class="imgwrap" style="display:block; position:relative; height:400px; padding:0; overflow:hidden">
+        <iframe src="platform.html" title="Event-driven SaaS platform interactive demo" loading="lazy" style="position:absolute; top:0; left:0; width:250%; height:1000px; transform:scale(0.4); transform-origin:top left; border:0; pointer-events:none"></iframe>
+        <span style="position:absolute; inset:0; display:flex; align-items:flex-end; padding:20px; font-weight:600; color:#fff; background:linear-gradient(180deg, transparent 55%, rgba(4,6,12,0.9))">▶ Launch interactive demo</span>
+      </a>
+      <div class="body">
+        <span class="project-num metal-text">01 · INTERACTIVE DEMO</span>
+        <h3>Event-Driven SaaS Platform on AWS</h3>
+        <p class="desc">An interactive, explorable production topology featuring edge security, a multi-AZ VPC of Fargate microservices, an asynchronous event backbone, and cross-cutting security, observability &amp; CI/CD planes. Filter any plane or run a live request trace right in the browser.</p>
+        <ul class="pillars">
+          <li><strong>Edge &amp; Network Security.</strong> WAF-fronted edge protecting a multi-AZ VPC that isolates public and private service tiers.</li>
+          <li><strong>Event Backbone.</strong> Decoupled Fargate microservices communicating asynchronously through an event-driven messaging layer.</li>
+          <li><strong>Cross-Cutting Planes.</strong> Toggle security, observability, and CI/CD overlays to see how each concern threads through the platform.</li>
+        </ul>
+        <div class="tags">
+          <span class="tag">AWS Fargate</span>
+          <span class="tag">Multi-AZ VPC</span>
+          <span class="tag">Event-Driven</span>
+          <span class="tag">Microservices</span>
+          <span class="tag">Observability</span>
+          <span class="tag">CI/CD</span>
+        </div>
+        <a class="btn btn-primary" href="platform.html" target="_blank" rel="noopener">Launch Interactive Demo ↗</a>
+      </div>
+    </div>
+
+    <!-- PROJECT 02 -->
+    <div class="project-card glass shine reveal">
+      <div class="imgwrap">
+        <img class="diagram" src="https://raw.githubusercontent.com/mbenyazed/aws-multiregion-failover/main/architecture.png" alt="AWS Multi-Region Active-Passive Failover architecture diagram" />
+      </div>
+      <div class="body">
+        <span class="project-num metal-text">02 · AWS DISASTER RECOVERY</span>
+        <h3>Multi-Region Active-Passive Failover with Auto-Recovery</h3>
+        <p class="desc">A production-grade, event-driven disaster-recovery blueprint designed to survive catastrophic regional failures while preserving client connectivity.</p>
+        <ul class="pillars">
+          <li><strong>Edge Resiliency.</strong> Amazon CloudFront Origin Groups route traffic away from a failing origin instantly, without waiting for slow DNS TTL cutovers.</li>
+          <li><strong>Automated State Recovery.</strong> CloudWatch monitors 5xx errors, alerts via SNS, and triggers a Lambda function that promotes the standby RDS PostgreSQL replica, with no manual intervention.</li>
+          <li><strong>Graceful Degradation.</strong> An S3-hosted static maintenance page catches user traffic during the brief promotion window, preventing transaction timeouts.</li>
+        </ul>
+        <div class="tags">
+          <span class="tag">Amazon CloudFront</span>
+          <span class="tag">RDS PostgreSQL</span>
+          <span class="tag">CloudWatch</span>
+          <span class="tag">SNS</span>
+          <span class="tag">AWS Lambda</span>
+          <span class="tag">Amazon S3</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">© 2026 Mamoun Benyazed · <a href="index.html">Back to portfolio</a></div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  window.addEventListener('load', () => {
+    document.querySelectorAll('header.page-hero .reveal').forEach((el) => el.classList.add('in'));
+  });
+
+  const p = document.getElementById('particles');
+  for (let i = 0; i < 34; i++) {
+    const dot = document.createElement('i');
+    dot.style.left = Math.random() * 100 + 'vw';
+    const dur = 16 + Math.random() * 18;
+    dot.style.animationDuration = dur + 's';
+    dot.style.animationDelay = -Math.random() * dur + 's';
+    const s = 1.5 + Math.random() * 2.5;
+    dot.style.width = dot.style.height = s + 'px';
+    dot.style.opacity = 0.3 + Math.random() * 0.5;
+    p.appendChild(dot);
+  }
+
+  const glows = document.querySelectorAll('.glow span');
+  window.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5);
+    const y = (e.clientY / window.innerHeight - 0.5);
+    glows.forEach((g, i) => {
+      const d = (i + 1) * 18;
+      g.style.translate = (x * d) + 'px ' + (y * d) + 'px';
+    });
+  });
+</script>
+
+</body>
+</html>
