@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Completed Packet Tracer Labs — Mamoun Benyazed</title>
-<meta name="description" content="Completed Cisco Packet Tracer labs by Mamoun Benyazed — redundant campus LAN with HSRP failover, and a multi-area OSPF enterprise WAN. Verified end to end with live command output." />
+<meta name="description" content="Completed Cisco Packet Tracer labs by Mamoun Benyazed — a redundant campus LAN with HSRP failover, a multi-area OSPF enterprise WAN, and a controller-based wireless LAN. Verified end to end with live command output." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -295,6 +295,59 @@
       </div>
     </div>
 
+    <!-- LAB 03 -->
+    <div class="lab-card glass shine reveal">
+      <div class="body">
+        <span class="project-num metal-text">LAB 03 · WIRELESS LAN</span>
+        <h3>Centralized Wireless LAN with a WLC</h3>
+        <p class="desc">A controller-based enterprise wireless deployment: a lightweight access point joined to a Wireless LAN Controller, broadcasting a WPA2-secured SSID, with wireless clients dynamically addressed over DHCP on a dedicated VLAN. Built and verified end to end in Cisco Packet Tracer.</p>
+        <ul class="pillars">
+          <li><strong>Controller-Based Architecture.</strong> A lightweight AP (LAP) registers to a Wireless LAN Controller, which centrally manages SSIDs, security, and client VLAN assignment.</li>
+          <li><strong>WPA2-PSK Security.</strong> The "Floor 2 Employees" WLAN is secured with WPA2 and AES encryption, requiring a pre-shared key for clients to associate.</li>
+          <li><strong>VLAN-Segmented Clients.</strong> Wireless clients land on a dedicated VLAN 5 through the controller's dynamic interface, isolating wireless traffic from the wired management network.</li>
+          <li><strong>Dynamic Addressing.</strong> Associated clients receive an address automatically via DHCP and reach both the local gateway and a remote server, proving full end-to-end connectivity.</li>
+        </ul>
+        <div class="tags">
+          <span class="tag">Wireless LAN Controller</span>
+          <span class="tag">Lightweight AP</span>
+          <span class="tag">WPA2-PSK</span>
+          <span class="tag">AES</span>
+          <span class="tag">802.1Q VLAN</span>
+          <span class="tag">DHCP</span>
+        </div>
+        <div class="lab-gallery">
+          <figure class="shot reveal" data-full="lab3-topology.png" data-cap="Controller-based wireless topology: a lightweight AP joined to the WLC, serving an associated wireless client.">
+            <img src="lab3-topology.png" alt="Wireless LAN topology" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Network Topology</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab3-all-aps.png" data-cap="All APs — the lightweight AP (AIR-CAP3702I) successfully registered to the Wireless LAN Controller.">
+            <img src="lab3-all-aps.png" alt="Lightweight AP joined to WLC" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Lightweight AP Joined</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab3-wlan-list.png" data-cap="WLANs — the SSID-5 'Floor 2 Employees' network, Enabled and secured with WPA2 + PSK.">
+            <img src="lab3-wlan-list.png" alt="WLAN list with WPA2 PSK" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>WLAN · WPA2-PSK</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab3-wlan5-interface.png" data-cap="The WLC dynamic interface for WLAN-5: VLAN 5, address 192.168.5.254, relaying DHCP to 192.168.5.1.">
+            <img src="lab3-wlan5-interface.png" alt="WLC dynamic interface VLAN 5" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Controller Interface (VLAN 5)</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab3-host-dhcp.png" data-cap="The wireless client associated and pulled a 192.168.5.x address automatically over DHCP.">
+            <img src="lab3-host-dhcp.png" alt="Wireless client DHCP lease" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Client DHCP Lease</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab3-ping-gateway.png" data-cap="Connectivity from the wireless client to the VLAN 5 gateway (192.168.5.1) with 0% packet loss.">
+            <img src="lab3-ping-gateway.png" alt="Ping to gateway" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Reachability · Gateway</figcaption>
+          </figure>
+          <figure class="shot reveal" data-full="lab3-ping-server.png" data-cap="End-to-end reachability from the wireless client to the remote server (172.31.1.254) across the routed network, 0% loss.">
+            <img src="lab3-ping-server.png" alt="Ping to server" loading="lazy" /><span class="zoom-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
+            <figcaption>Reachability · Server</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -311,15 +364,18 @@
 </div>
 
 <script>
+  /* staggered cinematic reveal */
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 
+  /* header reveals on load */
   window.addEventListener('load', () => {
     document.querySelectorAll('header.labs-hero .reveal').forEach((el) => el.classList.add('in'));
   });
 
+  /* drifting particles */
   const p = document.getElementById('particles');
   for (let i = 0; i < 34; i++) {
     const dot = document.createElement('i');
@@ -333,6 +389,7 @@
     p.appendChild(dot);
   }
 
+  /* lightbox */
   const lb = document.getElementById('lightbox');
   const lbImg = document.getElementById('lbImg');
   const lbCap = document.getElementById('lbCap');
@@ -348,6 +405,7 @@
   lb.addEventListener('click', (e) => { if (e.target === lb || e.target.tagName === 'FIGURE') closeLb(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
 
+  /* mouse parallax on background glows */
   const glows = document.querySelectorAll('.glow span');
   window.addEventListener('mousemove', (e) => {
     const x = (e.clientX / window.innerWidth - 0.5);
